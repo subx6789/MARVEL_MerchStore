@@ -1,36 +1,114 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ⚡ MARVEL MerchStore — Official Collector's Drop House
 
-## Getting Started
+> A ruthlessly premium, production-grade release engine and luxury collector vault built for MARVEL drops, event exclusives, and high-status merchandise.
 
-First, run the development server:
+---
+
+## 🌟 Architectural & Design Highlights
+
+- **Ultra-Luxury Neo-Brutalism Design System**: Heavy contrast framing, monumental typography (`Bebas Neue` + `Inter`), custom micro-animations with Framer Motion, and color palette (`#0A0A0A` Deep Black, `#E23636` MARVEL Red, `#F0B429` Gold).
+- **18-Table PostgreSQL Schema (Supabase & Drizzle ORM)**: Products, product variants, inventory, limited drops, event campaigns, QR access pass records, wishlists, cart items, coupons, orders, order items, and analytics events.
+- **Limited Drop Engine**: Real-time countdown clocks, stock progress allocation meters, and urgency signals.
+- **VIP Event QR Gate System**: Pass token authentication system for physical event exclusive merchandise releases.
+- **Admin Command Console**: Operations dashboard for revenue metrics, live drop scheduling, order fulfillment, coupon creation, and QR pass gate management.
+- **Docker Containerization**: Multi-stage Dockerfile (`output: "standalone"`) and docker-compose environment.
+
+---
+
+## 🚀 Quick Start (Local Setup)
+
+### 1. Prerequisites
+- Node.js `>= 20`
+- npm `>= 10`
+- Docker (optional for containerized deployment)
+
+### 2. Environment Variables Setup
+Create a `.env.local` file in the root directory:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Supabase Configuration
+NEXT_PUBLIC_SUPABASE_URL=https://dioixskrrkyfpyqerygu.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# Database Connection
+DATABASE_URL=postgresql://postgres:password@db.dioixskrrkyfpyqerygu.supabase.co:5432/postgres
+
+# App URL & Admin Secret
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+ADMIN_SECRET=marvel-admin-secret-2025
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 3. Install Dependencies & Run Development Server
+```bash
+npm install
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 🔐 Default Admin Credentials
 
-To learn more about Next.js, take a look at the following resources:
+Access the Admin Operations Console at **`http://localhost:3000/admin`**:
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Field | Credential |
+|---|---|
+| **Email** | `admin@marvelmerch.com` |
+| **Password** | `AdminPassword2025!` |
+| **Role** | `admin` |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+## 📍 Route Directory (33 Built Pages)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+### Storefront
+- `/` — Flagship Homepage (Hero, Live Drops, Collections, Best Sellers, VIP Events)
+- `/shop` — Product Catalog (Search, Universe Filters, Price Sorting)
+- `/product/[slug]` — Product Detail (Photo Gallery, Size/Color Selectors, Stock Meter)
+- `/drops` — Limited Drop Stage (Live Countdowns & Allocation Meters)
+- `/events` — Event Campaign Directory
+- `/events/[eventId]` — VIP QR Pass Token Unlock Portal
+- `/cart` — Cart Manager & Order Summary
+- `/checkout` — Address Validation, Promo Coupon Engine, Order Confirmation
+- `/wishlist` — Collector Vault
+- `/profile` — User Account & Order History
+- `/orders` — Customer Order History
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### Auth & Legal
+- `/login` & `/register` & `/forgot-password` — Supabase Auth Suite
+- `/faq`, `/shipping`, `/returns`, `/size-guide`, `/contact`, `/terms`, `/privacy`, `/cookies`
+
+### Admin Operations Suite
+- `/admin` — Overview Command Center
+- `/admin/products` — Product Catalog & Stock Controls
+- `/admin/drops` — Limited Drop Orchestration
+- `/admin/orders` — Order Fulfillment Tracking
+- `/admin/events` — Event Gate & QR Pass Analytics
+- `/admin/coupons` — Promo Discount Manager
+- `/admin/users` — User Directory & Role Assignments
+- `/admin/analytics` & `/admin/settings`
+
+---
+
+## 🐳 Docker Deployment
+
+To build and run the production stack in Docker:
+
+```bash
+# Build and launch Next.js container + PostgreSQL mirror
+docker compose up --build
+```
+
+---
+
+## 🛠️ Verification & Build Commands
+
+```bash
+# Type check TypeScript codebase
+npx tsc --noEmit
+
+# Run Next.js production build
+npm run build
+```
