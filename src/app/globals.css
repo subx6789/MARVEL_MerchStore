@@ -1,26 +1,361 @@
+/* ═══════════════════════════════════════════════════════════
+   MARVEL MerchStore — Global Styles
+   Ultra-luxury Neo-Brutalism Design System
+   ═══════════════════════════════════════════════════════════ */
+
+@import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&display=swap");
+
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --marvel-red: #e23636;
+    --marvel-red-dark: #b01d1d;
+    --marvel-red-light: #ff5252;
+    --marvel-gold: #f0b429;
+    --marvel-gold-dark: #c8941a;
+
+    --bg-primary: #0a0a0a;
+    --bg-secondary: #111111;
+    --bg-card: #161616;
+    --bg-card-hover: #1e1e1e;
+
+    --text-primary: #f5f5f0;
+    --text-secondary: #c8c8c0;
+    --text-muted: #888880;
+
+    --border: #1e1e1e;
+    --border-accent: #e23636;
+
+    --font-bebas: "Bebas Neue", "Impact", sans-serif;
+    --font-inter: "Inter", system-ui, sans-serif;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: var(--font-inter);
+    background-color: var(--bg-primary);
+    color: var(--text-primary);
+    min-height: 100vh;
+    overflow-x: hidden;
+    line-height: 1.5;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-bebas);
+    font-weight: 400;
+    letter-spacing: 0.02em;
+    line-height: 1;
+    color: var(--text-primary);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* ── Typography & Utilites ── */
+.font-display {
+  font-family: var(--font-bebas);
+}
+
+.text-marvel-white { color: #f5f5f0; }
+.text-marvel-white-dim { color: #c8c8c0; }
+.text-marvel-white-muted { color: #888880; }
+.text-marvel-red { color: #e23636; }
+.text-marvel-gold { color: #f0b429; }
+.text-marvel-black { color: #0a0a0a; }
+
+.bg-marvel-black { background-color: #0a0a0a; }
+.bg-marvel-black-soft { background-color: #111111; }
+.bg-marvel-black-card { background-color: #161616; }
+.bg-marvel-black-hover { background-color: #242424; }
+.bg-marvel-red { background-color: #e23636; }
+.bg-marvel-red-dark { background-color: #b01d1d; }
+.bg-marvel-gold { background-color: #f0b429; }
+.bg-marvel-gold-dark { background-color: #c8941a; }
+
+.border-marvel-black-border { border-color: #1e1e1e; }
+.border-marvel-red { border-color: #e23636; }
+.border-marvel-gold { border-color: #f0b429; }
+
+/* ── Custom Buttons ── */
+.btn-marvel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #e23636;
+  color: #ffffff;
+  font-family: var(--font-inter);
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
+  border: 1px solid #e23636;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.btn-marvel:hover {
+  background-color: #b01d1d;
+  box-shadow: 0 0 20px rgba(226, 54, 54, 0.4);
+}
+
+.btn-outline {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: transparent;
+  color: #f5f5f0;
+  font-family: var(--font-inter);
+  font-weight: 600;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
+  border: 1px solid #1e1e1e;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.btn-outline:hover {
+  border-color: #e23636;
+  color: #e23636;
+}
+
+.btn-gold {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: #f0b429;
+  color: #0a0a0a;
+  font-family: var(--font-inter);
+  font-weight: 700;
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 1rem 2rem;
+  border: none;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.btn-gold:hover {
+  background-color: #c8941a;
+  box-shadow: 0 0 20px rgba(240, 180, 41, 0.4);
+}
+
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background-color: transparent;
+  color: #c8c8c0;
+  font-family: var(--font-inter);
+  font-weight: 500;
+  font-size: 0.875rem;
+  padding: 0.5rem 1rem;
+  transition: all 0.15s ease;
+  cursor: pointer;
+}
+.btn-ghost:hover {
+  color: #f5f5f0;
+  background-color: #242424;
+}
+
+/* ── Cards ── */
+.card-product {
+  position: relative;
+  overflow: hidden;
+  background-color: #161616;
+  border: 1px solid #1e1e1e;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.card-product:hover {
+  border-color: #e23636;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+}
+
+/* ── Badges ── */
+.badge-live {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background-color: #e23636;
+  color: #ffffff;
+  font-size: 10px;
+  font-family: var(--font-inter);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.625rem;
+}
+
+.badge-limited {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background-color: #f0b429;
+  color: #0a0a0a;
+  font-size: 10px;
+  font-family: var(--font-inter);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.625rem;
+}
+
+.badge-vip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background-color: #f0b429;
+  color: #0a0a0a;
+  font-size: 10px;
+  font-family: var(--font-inter);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.625rem;
+}
+
+.badge-sold-out {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background-color: #1e1e1e;
+  color: #888880;
+  font-size: 10px;
+  font-family: var(--font-inter);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.625rem;
+}
+
+.badge-low-stock {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background-color: rgba(249, 115, 22, 0.2);
+  color: #fb923c;
+  font-size: 10px;
+  font-family: var(--font-inter);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid rgba(249, 115, 22, 0.3);
+}
+
+.badge-event-only {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background-color: rgba(168, 85, 247, 0.2);
+  color: #c084fc;
+  font-size: 10px;
+  font-family: var(--font-inter);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid rgba(168, 85, 247, 0.3);
+}
+
+.badge-exclusive {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  background-color: #1e1e1e;
+  color: #f0b429;
+  font-size: 10px;
+  font-family: var(--font-inter);
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.625rem;
+  border: 1px solid rgba(240, 180, 41, 0.3);
+}
+
+/* ── Section & Layout ── */
+.section-marvel {
+  padding-top: 5rem;
+  padding-bottom: 5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  max-width: 80rem;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.input-marvel {
+  width: 100%;
+  background-color: #161616;
+  border: 1px solid #1e1e1e;
+  color: #f5f5f0;
+  font-family: var(--font-inter);
+  font-size: 0.875rem;
+  padding: 0.75rem 1rem;
+  transition: border-color 0.2s ease;
+}
+.input-marvel:focus {
+  outline: none;
+  border-color: #e23636;
+}
+
+.label-marvel {
+  font-size: 10px;
+  font-family: var(--font-inter);
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #888880;
+}
+
+/* ── Ticker Animation ── */
+@keyframes ticker {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-ticker {
+  display: inline-flex;
+  animation: ticker 25s linear infinite;
+}
+
+/* ── Text Gradients ── */
+.text-gradient-marvel {
+  background: linear-gradient(135deg, #e23636 0%, #f0b429 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── Scrollbars ── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #0a0a0a;
+}
+::-webkit-scrollbar-thumb {
+  background: #1e1e1e;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #e23636;
 }
