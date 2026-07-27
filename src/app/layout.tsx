@@ -4,6 +4,7 @@
 import type { Metadata } from "next";
 import { Inter, Bebas_Neue } from "next/font/google";
 import { Toaster } from "sonner";
+import AuthModal from "@/components/auth/AuthModal";
 import "./globals.css";
 
 // ── Google Fonts ─────────────────────────────────────────
@@ -23,8 +24,8 @@ const bebasNeue = Bebas_Neue({
 // ── Site Metadata ─────────────────────────────────────────
 export const metadata: Metadata = {
   title: {
-    default: "MARVEL MerchStore — Official Collector's Edition",
-    template: "%s | MARVEL MerchStore",
+    default: "MARVEL",
+    template: "%s | MARVEL Merch Store",
   },
   description:
     "The official MARVEL luxury merch platform. Limited drops, event exclusives, and collector-grade gear for true fans. Shop rare, wear rare.",
@@ -74,14 +75,17 @@ export default function RootLayout({
       >
         {children}
 
+        {/* Global Auth Modal */}
+        <AuthModal />
+
         {/* Global Toast Notifications */}
         <Toaster
           position="top-right"
           theme="dark"
           toastOptions={{
             style: {
-              background: "#161616",
-              border: "1px solid #1E1E1E",
+              background: "#141419",
+              border: "1px solid #26262a",
               color: "#F5F5F0",
               borderRadius: "2px",
               fontSize: "14px",

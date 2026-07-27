@@ -14,7 +14,7 @@ export default function StorefrontLayout({
   return (
     <>
       <Navbar />
-      <main className="min-h-screen pt-[calc(2rem+4rem)]">
+      <main className="min-h-screen pt-24">
         {children}
       </main>
       <Footer />

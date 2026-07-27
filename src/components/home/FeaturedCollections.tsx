@@ -1,152 +1,173 @@
 "use client";
+
 // ─────────────────────────────────────────────────────────
-// Featured Collections — Editorial grid of categories
+// Featured Collections — Marvel Merchandising Taxonomy
+// 1. Power Origins (Hero Power Type Classifications)
+// 2. Families & Factions (Teams, Organizations & Collections)
 // ─────────────────────────────────────────────────────────
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
-import { staggerContainerVariants, staggerItemVariants } from "@/lib/motion/variants";
+import { ArrowRight, Shield, Sparkles, Flame, Atom, Cpu, Wand2 } from "lucide-react";
+import { staggerContainerVariants, staggerItemVariants, fadeUpVariants } from "@/lib/motion/variants";
+import { useProductStore } from "@/stores/productStore";
+import { MARVEL_FAMILIES, POWER_ORIGINS } from "@/types/taxonomy";
+import { soundFx } from "@/lib/sound";
 
-const collections = [
-  {
-    name: "Avengers",
-    slug: "avengers",
-    description: "Earth's Mightiest Heroes",
-    count: "87 Products",
-    accent: "#E23636",
-    label: "FEATURED",
-    gridClass: "md:col-span-2 md:row-span-2",
-    height: "h-72 md:h-full",
-  },
-  {
-    name: "Spider-Man",
-    slug: "spider-man",
-    description: "Your Friendly Neighborhood",
-    count: "54 Products",
-    accent: "#1a6af5",
-    label: "HOT",
-    gridClass: "",
-    height: "h-48",
-  },
-  {
-    name: "Iron Man",
-    slug: "iron-man",
-    description: "Genius. Billionaire.",
-    count: "43 Products",
-    accent: "#F0B429",
-    label: "LIMITED",
-    gridClass: "",
-    height: "h-48",
-  },
-  {
-    name: "Black Panther",
-    slug: "black-panther",
-    description: "Wakanda Forever",
-    count: "38 Products",
-    accent: "#9333ea",
-    label: "EXCLUSIVE",
-    gridClass: "",
-    height: "h-48",
-  },
-  {
-    name: "X-Men",
-    slug: "x-men",
-    description: "Mutant Revolution",
-    count: "61 Products",
-    accent: "#F59E0B",
-    label: "NEW",
-    gridClass: "",
-    height: "h-48",
-  },
-];
+const ORIGIN_ICONS: Record<string, any> = {
+  mutant: Flame,
+  cosmic: Sparkles,
+  science: Atom,
+  skill: Shield,
+  tech: Cpu,
+  mystic: Wand2,
+};
 
 export default function FeaturedCollections() {
+  const { products } = useProductStore();
+
   return (
-    <section className="section-marvel">
+    <section className="section-marvel text-white space-y-16">
+      {/* ── 1. POWER ORIGINS (Hero Power Type Classifications) ── */}
       <motion.div
         variants={staggerContainerVariants}
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, margin: "-80px" }}
       >
-        {/* Section Header */}
-        <motion.div
-          variants={staggerItemVariants}
-          className="flex items-baseline justify-between mb-10"
-        >
+        <motion.div variants={fadeUpVariants} className="mb-8">
+          <span className="text-xs font-bold text-[#00f0ff] uppercase tracking-[0.2em] block mb-1">
+            HERO CLASSIFICATIONS
+          </span>
+          <h2 className="font-display text-4xl md:text-5xl text-white tracking-wide uppercase font-extrabold">
+            POWER ORIGINS
+          </h2>
+          <p className="text-gray-400 text-sm max-w-xl mt-1">
+            Browse official merchandise by hero power origin — Mutant, Cosmic, Science, Skill, Tech & Mystic.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          {POWER_ORIGINS.map((pOrigin) => {
+            const IconComponent = ORIGIN_ICONS[pOrigin.slug] || Sparkles;
+            const count = products.filter(
+              (p) =>
+                p.origins?.includes(pOrigin.slug) ||
+                p.category?.toLowerCase() === pOrigin.slug ||
+                p.name?.toLowerCase().includes(pOrigin.slug)
+            ).length;
+
+            return (
+              <motion.div key={pOrigin.slug} variants={staggerItemVariants}>
+                <Link
+                  href={`/shop?origin=${pOrigin.slug}`}
+                  onClick={() => soundFx.playClick()}
+                  className="block p-5 border border-[#1e1e2a] rounded-xs bg-[#14141c] hover:border-[#00f0ff] transition-all duration-300 group shadow-xl hover:scale-[1.03]"
+                >
+                  <div className="flex items-center justify-between mb-3">
+                    <IconComponent size={24} className="text-[#00f0ff] group-hover:rotate-12 transition-transform" />
+                    <span className="text-[10px] font-mono font-bold text-gray-400">{count} Gear</span>
+                  </div>
+                  <h3 className="font-display text-xl font-extrabold uppercase tracking-wide text-white group-hover:text-[#00f0ff] transition-colors">
+                    {pOrigin.name}
+                  </h3>
+                  <p className="text-[10px] text-gray-400 mt-1 leading-snug font-normal line-clamp-1">
+                    {pOrigin.description}
+                  </p>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
+      </motion.div>
+
+      {/* ── 2. FAMILIES & FACTIONS (Teams, Organizations & Collections) ── */}
+      <motion.div
+        variants={staggerContainerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
+        <motion.div variants={fadeUpVariants} className="flex items-baseline justify-between mb-8">
           <div>
-            <p className="label-marvel text-marvel-red mb-2">Browse by Universe</p>
-            <h2 className="font-display text-hero-md text-marvel-white tracking-wide">
-              COLLECTIONS
+            <span className="text-xs font-bold text-red-500 uppercase tracking-[0.2em] block mb-1">
+              MARVEL UNIVERSE TEAMS & FACTIONS
+            </span>
+            <h2 className="font-display text-4xl md:text-5xl text-white tracking-wide uppercase font-extrabold">
+              FAMILIES & FACTIONS
             </h2>
+            <p className="text-gray-400 text-sm max-w-xl mt-1">
+              Explore team gear, multi-character sets, and faction collections.
+            </p>
           </div>
           <Link
             href="/shop"
-            className="hidden md:flex items-center gap-2 label-marvel hover:text-marvel-white transition-colors group"
+            onClick={() => soundFx.playClick()}
+            className="hidden md:flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-gray-400 hover:text-white transition-colors group"
           >
-            All Collections
-            <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+            All Collections <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
           </Link>
         </motion.div>
 
-        {/* Grid */}
-        <div className="grid md:grid-cols-4 gap-3">
-          {collections.map((collection) => (
-            <motion.div
-              key={collection.slug}
-              variants={staggerItemVariants}
-              className={collection.gridClass}
-            >
-              <Link
-                href={`/shop?category=${collection.slug}`}
-                className={`
-                  relative block overflow-hidden bg-marvel-black-card border border-marvel-black-border
-                  group cursor-pointer transition-all duration-300
-                  hover:border-[${collection.accent}] ${collection.height}
-                `}
-              >
-                {/* Background */}
-                <div
-                  className="absolute inset-0 opacity-10 group-hover:opacity-20 transition-opacity duration-300"
-                  style={{
-                    background: `radial-gradient(ellipse at 70% 50%, ${collection.accent} 0%, transparent 70%)`,
-                  }}
-                />
+        {/* 4-Column Grid for All 8 Marvel Families */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          {MARVEL_FAMILIES.map((family) => {
+            const count = products.filter(
+              (p) =>
+                p.families?.includes(family.slug) ||
+                p.category?.toLowerCase() === family.slug ||
+                p.name?.toLowerCase().includes(family.name.toLowerCase())
+            ).length;
 
-                {/* Content */}
-                <div className="absolute inset-0 flex flex-col justify-end p-6">
-                  <span
-                    className="inline-flex items-center text-[9px] font-700 tracking-[0.2em] uppercase px-2 py-1 mb-3 w-fit"
-                    style={{
-                      background: `${collection.accent}20`,
-                      color: collection.accent,
-                      border: `1px solid ${collection.accent}40`,
-                    }}
-                  >
-                    {collection.label}
-                  </span>
-                  <h3 className="font-display text-3xl md:text-4xl text-marvel-white tracking-wide leading-none mb-1">
-                    {collection.name.toUpperCase()}
-                  </h3>
-                  <p className="font-sans text-sm text-marvel-white-dim">
-                    {collection.description}
-                  </p>
-                  <div className="flex items-center justify-between mt-4 pt-4 border-t border-white/10">
-                    <span className="font-sans text-xs text-marvel-white-muted">
-                      {collection.count}
+            return (
+              <motion.div key={family.slug} variants={staggerItemVariants}>
+                <Link
+                  href={`/shop?family=${family.slug}`}
+                  onClick={() => soundFx.playClick()}
+                  className="relative block h-56 overflow-hidden bg-[#14141c] border border-[#1e1e2a] group cursor-pointer transition-all duration-300 rounded-xs shadow-xl hover:border-red-500"
+                >
+                  {/* Background Accent Gradient */}
+                  <div
+                    className={`absolute inset-0 opacity-30 group-hover:opacity-65 transition-opacity duration-300 bg-linear-to-br ${family.bgPattern}`}
+                  />
+
+                  {/* Top Badge Tag */}
+                  <div className="absolute top-4 left-4 z-10">
+                    <span
+                      className="inline-flex items-center text-[9px] font-extrabold tracking-widest uppercase px-2.5 py-1"
+                      style={{
+                        background: `${family.accent}20`,
+                        color: family.accent,
+                        border: `1px solid ${family.accent}40`,
+                      }}
+                    >
+                      {family.tag}
                     </span>
-                    <ArrowRight
-                      size={16}
-                      className="text-marvel-white-muted group-hover:text-marvel-white group-hover:translate-x-1 transition-all"
-                    />
                   </div>
-                </div>
 
-                {/* Shimmer on hover */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700" />
-              </Link>
-            </motion.div>
-          ))}
+                  {/* Content Footer */}
+                  <div className="absolute inset-0 flex flex-col justify-end p-6 z-10">
+                    <h3 className="font-display text-2xl md:text-3xl text-white tracking-wide leading-tight mb-1 font-extrabold uppercase">
+                      {family.name}
+                    </h3>
+                    <p className="font-sans text-xs text-gray-400 line-clamp-1">{family.description}</p>
+
+                    <div className="flex items-center justify-between mt-4 pt-3 border-t border-white/10">
+                      <span className="font-sans text-xs font-bold text-gray-400">
+                        {count} {count === 1 ? "Product" : "Products"}
+                      </span>
+                      <ArrowRight
+                        size={18}
+                        className="text-gray-400 group-hover:text-white group-hover:translate-x-1 transition-all"
+                      />
+                    </div>
+                  </div>
+
+                  {/* Hover Shimmer */}
+                  <div className="absolute inset-0 bg-linear-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700 pointer-events-none" />
+                </Link>
+              </motion.div>
+            );
+          })}
         </div>
       </motion.div>
     </section>

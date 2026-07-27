@@ -1,18 +1,26 @@
 "use client";
+
+// ─────────────────────────────────────────────────────────
+// Event Merch Block — Dynamic VIP Event Access Block
+// Powered by useProductStore — No static hardcoded mock data
+// ─────────────────────────────────────────────────────────
 import { motion } from "framer-motion";
 import Link from "next/link";
 import { QrCode, ArrowRight, MapPin, Calendar } from "lucide-react";
 import { fadeUpVariants, staggerContainerVariants } from "@/lib/motion/variants";
-
-const EVENTS = [
-  { id: "1", name: "MARVEL COMIC CON 2026", venue: "MMRDA Grounds, Mumbai", date: "Aug 15–17, 2026", products: 24, slug: "comic-con-mumbai-2026", isActive: true },
-  { id: "2", name: "AVENGERS EXPO DELHI", venue: "Pragati Maidan, New Delhi", date: "Sep 5–7, 2026", products: 18, slug: "avengers-expo-delhi", isActive: false },
-];
+import { useProductStore } from "@/stores/productStore";
+import { soundFx } from "@/lib/sound";
 
 export default function EventMerchBlock() {
+  const { events } = useProductStore();
+
+  if (events.length === 0) {
+    return null; // Clean: Don't render block if no events created yet in Admin
+  }
+
   return (
-    <section className="bg-marvel-black-soft border-y border-marvel-black-border py-16 md:py-20">
-      <div className="max-w-screen-xl mx-auto px-4 md:px-8">
+    <section className="bg-[#08080c] border-y border-[#1e1e2a] py-16 md:py-20 text-white">
+      <div className="max-w-7xl mx-auto px-4 md:px-8">
         <motion.div
           variants={staggerContainerVariants}
           initial="hidden"
@@ -21,57 +29,62 @@ export default function EventMerchBlock() {
         >
           <motion.div variants={fadeUpVariants} className="flex items-baseline justify-between mb-10">
             <div>
-              <p className="label-marvel text-marvel-gold mb-2">Event Exclusives</p>
-              <h2 className="font-display text-hero-md text-marvel-white tracking-wide">
+              <p className="text-xs font-bold text-amber-400 uppercase tracking-widest mb-2">Event Exclusives</p>
+              <h2 className="font-display text-4xl text-white tracking-wide uppercase font-extrabold">
                 VIP ACCESS
               </h2>
             </div>
-            <Link href="/events" className="label-marvel hover:text-marvel-white transition-colors flex items-center gap-1.5 group">
-              All Events <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+            <Link
+              href="/events"
+              onClick={() => soundFx.playClick()}
+              className="text-xs font-bold text-gray-400 hover:text-white uppercase tracking-widest transition-colors flex items-center gap-1.5 group"
+            >
+              All Events <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
             </Link>
           </motion.div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            {EVENTS.map((event) => (
+            {events.map((event) => (
               <motion.div key={event.id} variants={fadeUpVariants}>
-                <Link href={`/events/${event.slug}`} className="block group">
-                  <div className="bg-marvel-black-card border border-marvel-black-border hover:border-marvel-gold transition-colors duration-300 p-8 relative overflow-hidden">
-                    {/* Background accent */}
-                    <div className="absolute top-0 right-0 w-64 h-64 bg-marvel-gold/5 blur-3xl rounded-full pointer-events-none" />
-
+                <Link
+                  href={`/events/${event.slug}`}
+                  onClick={() => soundFx.playClick()}
+                  className="block group"
+                >
+                  <div className="bg-[#14141c] border border-[#1e1e2a] hover:border-amber-400 transition-colors duration-300 p-8 relative overflow-hidden rounded-xs shadow-xl">
                     <div className="flex items-start justify-between mb-6">
                       <div>
-                        {event.isActive && (
-                          <span className="badge-live mb-3 inline-flex">
-                            <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" /> Active
+                        {event.status === "live" && (
+                          <span className="bg-emerald-500/20 text-emerald-400 text-[10px] font-bold px-2.5 py-0.5 border border-emerald-500/30 uppercase tracking-widest mb-3 inline-flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" /> Active Gate
                           </span>
                         )}
-                        <h3 className="font-display text-2xl md:text-3xl text-marvel-white tracking-wide leading-tight">
+                        <h3 className="font-display text-2xl md:text-3xl text-white tracking-wide font-extrabold leading-tight">
                           {event.name}
                         </h3>
                       </div>
-                      <div className="w-12 h-12 bg-marvel-gold/10 border border-marvel-gold/30 flex items-center justify-center shrink-0">
-                        <QrCode size={24} className="text-marvel-gold" />
+                      <div className="w-12 h-12 bg-amber-400/10 border border-amber-400/30 flex items-center justify-center shrink-0">
+                        <QrCode size={24} className="text-amber-400" />
                       </div>
                     </div>
 
                     <div className="space-y-2 mb-6">
-                      <div className="flex items-center gap-2 text-marvel-white-dim">
-                        <MapPin size={14} className="text-marvel-gold shrink-0" />
+                      <div className="flex items-center gap-2 text-gray-400">
+                        <MapPin size={14} className="text-amber-400 shrink-0" />
                         <span className="font-sans text-sm">{event.venue}</span>
                       </div>
-                      <div className="flex items-center gap-2 text-marvel-white-dim">
-                        <Calendar size={14} className="text-marvel-gold shrink-0" />
+                      <div className="flex items-center gap-2 text-gray-400">
+                        <Calendar size={14} className="text-amber-400 shrink-0" />
                         <span className="font-sans text-sm">{event.date}</span>
                       </div>
                     </div>
 
-                    <div className="flex items-center justify-between pt-6 border-t border-marvel-black-border">
-                      <span className="badge-vip">
-                        {event.products} Exclusive Products
+                    <div className="flex items-center justify-between pt-6 border-t border-[#1e1e2a]">
+                      <span className="bg-[#00f0ff]/10 border border-[#00f0ff]/40 text-[#00f0ff] text-[10px] font-black px-2.5 py-0.5 tracking-widest uppercase">
+                        {event.productsCount} Exclusive Products
                       </span>
-                      <span className="label-marvel group-hover:text-marvel-gold transition-colors flex items-center gap-1">
-                        Scan QR to Access <ArrowRight size={10} />
+                      <span className="text-xs font-bold text-gray-400 group-hover:text-amber-400 transition-colors flex items-center gap-1">
+                        Scan QR to Access <ArrowRight size={12} />
                       </span>
                     </div>
                   </div>

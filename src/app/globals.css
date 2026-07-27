@@ -1,6 +1,6 @@
 /* ═══════════════════════════════════════════════════════════
-   MARVEL MerchStore — Global Styles
-   Ultra-luxury Neo-Brutalism Design System
+   MARVEL MerchStore & MRVL Vault — Global Styles
+   Official Cyber-Hero Glassmorphism & High-Octane Design System
    ═══════════════════════════════════════════════════════════ */
 
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700;800;900&display=swap");
@@ -14,17 +14,18 @@
     --marvel-red-light: #ff5252;
     --marvel-gold: #f0b429;
     --marvel-gold-dark: #c8941a;
+    --marvel-cyan: #00f0ff;
 
-    --bg-primary: #0a0a0a;
-    --bg-secondary: #111111;
-    --bg-card: #161616;
-    --bg-card-hover: #1e1e1e;
+    --bg-primary: #08080c;
+    --bg-secondary: #0f0f15;
+    --bg-card: #14141c;
+    --bg-card-hover: #1c1c28;
 
     --text-primary: #f5f5f0;
     --text-secondary: #c8c8c0;
     --text-muted: #888880;
 
-    --border: #1e1e1e;
+    --border: #1e1e2a;
     --border-accent: #e23636;
 
     --font-bebas: "Bebas Neue", "Impact", sans-serif;
@@ -63,7 +64,34 @@
   }
 }
 
-/* ── Typography & Utilites ── */
+/* ── Cyber Glass Panels & Effects ── */
+.glass-vault {
+  background: rgba(15, 15, 23, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-vault-hover {
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.glass-vault-hover:hover {
+  background: rgba(25, 25, 38, 0.85);
+  border-color: rgba(226, 54, 54, 0.5);
+  box-shadow: 0 8px 32px rgba(226, 54, 54, 0.2);
+}
+
+.glow-red {
+  box-shadow: 0 0 25px rgba(226, 54, 54, 0.4);
+}
+.glow-gold {
+  box-shadow: 0 0 25px rgba(240, 180, 41, 0.4);
+}
+.glow-cyan {
+  box-shadow: 0 0 25px rgba(0, 240, 255, 0.4);
+}
+
+/* ── Typography & Utilities ── */
 .font-display {
   font-family: var(--font-bebas);
 }
@@ -73,18 +101,19 @@
 .text-marvel-white-muted { color: #888880; }
 .text-marvel-red { color: #e23636; }
 .text-marvel-gold { color: #f0b429; }
-.text-marvel-black { color: #0a0a0a; }
+.text-marvel-cyan { color: #00f0ff; }
+.text-marvel-black { color: #08080c; }
 
-.bg-marvel-black { background-color: #0a0a0a; }
-.bg-marvel-black-soft { background-color: #111111; }
-.bg-marvel-black-card { background-color: #161616; }
-.bg-marvel-black-hover { background-color: #242424; }
+.bg-marvel-black { background-color: #08080c; }
+.bg-marvel-black-soft { background-color: #0f0f15; }
+.bg-marvel-black-card { background-color: #14141c; }
+.bg-marvel-black-hover { background-color: #1c1c28; }
 .bg-marvel-red { background-color: #e23636; }
 .bg-marvel-red-dark { background-color: #b01d1d; }
 .bg-marvel-gold { background-color: #f0b429; }
 .bg-marvel-gold-dark { background-color: #c8941a; }
 
-.border-marvel-black-border { border-color: #1e1e1e; }
+.border-marvel-black-border { border-color: #1e1e2a; }
 .border-marvel-red { border-color: #e23636; }
 .border-marvel-gold { border-color: #f0b429; }
 
@@ -103,12 +132,13 @@
   text-transform: uppercase;
   padding: 1rem 2rem;
   border: 1px solid #e23636;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
 }
 .btn-marvel:hover {
-  background-color: #b01d1d;
-  box-shadow: 0 0 20px rgba(226, 54, 54, 0.4);
+  background-color: #ff2828;
+  box-shadow: 0 0 25px rgba(226, 54, 54, 0.5);
+  transform: translateY(-2px);
 }
 
 .btn-outline {
@@ -124,13 +154,15 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 1rem 2rem;
-  border: 1px solid #1e1e1e;
-  transition: all 0.2s ease;
+  border: 1px solid #1e1e2a;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
 }
 .btn-outline:hover {
   border-color: #e23636;
   color: #e23636;
+  box-shadow: 0 0 15px rgba(226, 54, 54, 0.2);
+  transform: translateY(-2px);
 }
 
 .btn-gold {
@@ -139,7 +171,7 @@
   justify-content: center;
   gap: 0.5rem;
   background-color: #f0b429;
-  color: #0a0a0a;
+  color: #08080c;
   font-family: var(--font-inter);
   font-weight: 700;
   font-size: 0.875rem;
@@ -147,12 +179,13 @@
   text-transform: uppercase;
   padding: 1rem 2rem;
   border: none;
-  transition: all 0.2s ease;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   cursor: pointer;
 }
 .btn-gold:hover {
-  background-color: #c8941a;
-  box-shadow: 0 0 20px rgba(240, 180, 41, 0.4);
+  background-color: #ffc43d;
+  box-shadow: 0 0 25px rgba(240, 180, 41, 0.5);
+  transform: translateY(-2px);
 }
 
 .btn-ghost {
@@ -171,22 +204,22 @@
 }
 .btn-ghost:hover {
   color: #f5f5f0;
-  background-color: #242424;
+  background-color: #1c1c28;
 }
 
-/* ── Cards ── */
+/* ── Product Cards ── */
 .card-product {
   position: relative;
   overflow: hidden;
-  background-color: #161616;
-  border: 1px solid #1e1e1e;
+  background-color: #14141c;
+  border: 1px solid #1e1e2a;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .card-product:hover {
   border-color: #e23636;
-  transform: translateY(-4px);
-  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.8);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.9), 0 0 20px rgba(226, 54, 54, 0.25);
 }
 
 /* ── Badges ── */
@@ -202,6 +235,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 0.25rem 0.625rem;
+  box-shadow: 0 0 10px rgba(226, 54, 54, 0.5);
 }
 
 .badge-limited {
@@ -209,7 +243,7 @@
   align-items: center;
   gap: 0.375rem;
   background-color: #f0b429;
-  color: #0a0a0a;
+  color: #08080c;
   font-size: 10px;
   font-family: var(--font-inter);
   font-weight: 700;
@@ -222,21 +256,22 @@
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  background-color: #f0b429;
-  color: #0a0a0a;
+  background-color: #00f0ff;
+  color: #08080c;
   font-size: 10px;
   font-family: var(--font-inter);
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 0.25rem 0.625rem;
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.5);
 }
 
 .badge-sold-out {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  background-color: #1e1e1e;
+  background-color: #1e1e2a;
   color: #888880;
   font-size: 10px;
   font-family: var(--font-inter);
@@ -258,7 +293,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 0.25rem 0.625rem;
-  border: 1px solid rgba(249, 115, 22, 0.3);
+  border: 1px solid rgba(249, 115, 22, 0.4);
 }
 
 .badge-event-only {
@@ -273,14 +308,14 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 0.25rem 0.625rem;
-  border: 1px solid rgba(168, 85, 247, 0.3);
+  border: 1px solid rgba(168, 85, 247, 0.4);
 }
 
 .badge-exclusive {
   display: inline-flex;
   align-items: center;
   gap: 0.375rem;
-  background-color: #1e1e1e;
+  background-color: #1e1e2a;
   color: #f0b429;
   font-size: 10px;
   font-family: var(--font-inter);
@@ -288,7 +323,7 @@
   letter-spacing: 0.1em;
   text-transform: uppercase;
   padding: 0.25rem 0.625rem;
-  border: 1px solid rgba(240, 180, 41, 0.3);
+  border: 1px solid rgba(240, 180, 41, 0.4);
 }
 
 /* ── Section & Layout ── */
@@ -304,8 +339,8 @@
 
 .input-marvel {
   width: 100%;
-  background-color: #161616;
-  border: 1px solid #1e1e1e;
+  background-color: #14141c;
+  border: 1px solid #1e1e2a;
   color: #f5f5f0;
   font-family: var(--font-inter);
   font-size: 0.875rem;
@@ -315,6 +350,7 @@
 .input-marvel:focus {
   outline: none;
   border-color: #e23636;
+  box-shadow: 0 0 10px rgba(226, 54, 54, 0.3);
 }
 
 .label-marvel {
@@ -339,7 +375,21 @@
 
 /* ── Text Gradients ── */
 .text-gradient-marvel {
-  background: linear-gradient(135deg, #e23636 0%, #f0b429 100%);
+  background: linear-gradient(135deg, #ffffff 0%, #e23636 50%, #f0b429 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-gold {
+  background: linear-gradient(135deg, #fff3c4 0%, #f0b429 60%, #c8941a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.text-gradient-cyan {
+  background: linear-gradient(135deg, #ffffff 0%, #00f0ff 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -351,10 +401,10 @@
   height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #0a0a0a;
+  background: #08080c;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e1e1e;
+  background: #1e1e2a;
 }
 ::-webkit-scrollbar-thumb:hover {
   background: #e23636;

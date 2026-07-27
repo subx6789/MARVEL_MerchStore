@@ -1,10 +1,8 @@
 "use client";
 import { Users, Shield, Crown } from "lucide-react";
 
-const DEMO_USERS = [
-  { id: "u1", name: "Tony Stark", email: "tony@starkindustries.com", role: "admin", joined: "Jul 2026", orders: 12 },
-  { id: "u2", name: "Steve Rogers", email: "steve@avengers.org", role: "vip", joined: "Jul 2026", orders: 5 },
-  { id: "u3", name: "Peter Parker", email: "peter@dailybugle.com", role: "user", joined: "Jul 2026", orders: 2 },
+const SEEDED_USERS = [
+  { id: "00000000-0000-0000-0000-000000000001", name: "Marvel Admin HQ", email: "admin@marvel.com", role: "admin", joined: "Jul 2026", orders: 0 },
 ];
 
 export default function AdminUsersPage() {
@@ -27,7 +25,7 @@ export default function AdminUsersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-marvel-black-border text-marvel-white-dim">
-            {DEMO_USERS.map((u) => (
+            {SEEDED_USERS.map((u) => (
               <tr key={u.id} className="hover:bg-marvel-black-hover transition-colors">
                 <td className="p-4 font-semibold text-marvel-white">{u.name}</td>
                 <td className="p-4 font-mono text-marvel-white-muted">{u.email}</td>

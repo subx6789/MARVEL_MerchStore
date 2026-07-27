@@ -1,9 +1,10 @@
 // ─────────────────────────────────────────────────────────
-// HOMEPAGE — MARVEL MerchStore
-// The flagship launch experience
+// HOMEPAGE — MARVEL MerchStore & Vault Unified Experience
+// Official Marvel Merch Store + Real-time Drops & Exclusives
 // ─────────────────────────────────────────────────────────
 import { Suspense } from "react";
 import HeroSection from "@/components/home/HeroSection";
+import VaultGuarantees from "@/components/home/VaultGuarantees";
 import DropSpotlight from "@/components/home/DropSpotlight";
 import FeaturedCollections from "@/components/home/FeaturedCollections";
 import BestSellers from "@/components/home/BestSellers";
@@ -13,33 +14,44 @@ import { ProductGridSkeleton } from "@/components/shared/Skeletons";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "MARVEL MerchStore — Collector-Grade Drops & Event Exclusives",
+  title: "MARVEL MerchStore — Official Collector Drops & Event Exclusives",
   description:
-    "Official MARVEL luxury merch. Limited drops, event-exclusive gear, and collector-grade apparel. Shop rare, wear rare.",
+    "Official MARVEL luxury merchandise, live drops, event-exclusive gear, and collector-grade apparel. Shop rare, wear rare.",
 };
 
 export default function HomePage() {
   return (
     <>
-      {/* 1. Cinematic Hero */}
+      {/* 1. Cinematic Hero with Official CSS Marvel Logo */}
       <HeroSection />
 
-      {/* 2. Live Drop Spotlight */}
+      {/* 2. Marvel Vault Standard Guarantees */}
+      <VaultGuarantees />
+
+      {/* 3. Live Drop Spotlight Terminal */}
       <Suspense fallback={<DropSpotlightSkeleton />}>
         <DropSpotlight />
       </Suspense>
 
-      {/* 3. Featured Collections Grid */}
+      {/* 4. Superhero Factions & Categories Grid */}
       <FeaturedCollections />
 
-      {/* 4. Best Sellers */}
+      {/* 5. Best Sellers / Popular Collector Gear */}
       <section className="section-marvel">
         <div className="flex items-baseline justify-between mb-10">
-          <h2 className="font-display text-hero-md text-marvel-white tracking-wide">
-            BEST SELLERS
-          </h2>
-          <a href="/shop?sort=popular" className="label-marvel hover:text-marvel-red transition-colors">
-            View All →
+          <div>
+            <span className="text-xs font-bold text-red-500 uppercase tracking-[0.2em] block mb-1">
+              FAN FAVOURITES
+            </span>
+            <h2 className="font-display text-4xl md:text-5xl text-[#f5f5f0] tracking-wide uppercase">
+              BEST SELLERS
+            </h2>
+          </div>
+          <a
+            href="/shop?sort=popular"
+            className="text-xs font-bold uppercase tracking-widest text-amber-400 hover:text-white transition-colors"
+          >
+            Browse All Gear →
           </a>
         </div>
         <Suspense fallback={<ProductGridSkeleton count={4} />}>
@@ -47,12 +59,12 @@ export default function HomePage() {
         </Suspense>
       </section>
 
-      {/* 5. Event Merch Block */}
-      <Suspense fallback={<div className="h-64 skeleton" />}>
+      {/* 6. Event Merch Block (Convention Floor Exclusives) */}
+      <Suspense fallback={<div className="h-64 skeleton bg-gray-900" />}>
         <EventMerchBlock />
       </Suspense>
 
-      {/* 6. Brand Manifesto / Story */}
+      {/* 7. Brand Manifesto / Collector Lore */}
       <BrandManifesto />
     </>
   );
@@ -62,7 +74,7 @@ export default function HomePage() {
 function DropSpotlightSkeleton() {
   return (
     <div className="section-marvel">
-      <div className="h-80 skeleton" />
+      <div className="h-80 skeleton bg-gray-900 border border-gray-800" />
     </div>
   );
 }
