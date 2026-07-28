@@ -6,9 +6,10 @@
 // ─────────────────────────────────────────────────────────
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { QrCode, ArrowRight, MapPin, Calendar } from "lucide-react";
+import { QrCode, ArrowRight, MapPin, Calendar, Clock } from "lucide-react";
 import { fadeUpVariants, staggerContainerVariants } from "@/lib/motion/variants";
 import { useProductStore } from "@/stores/productStore";
+import DropCountdown from "@/components/drops/DropCountdown";
 import { soundFx } from "@/lib/sound";
 
 export default function EventMerchBlock() {
@@ -51,7 +52,18 @@ export default function EventMerchBlock() {
                   onClick={() => soundFx.playClick()}
                   className="block group"
                 >
-                  <div className="bg-[#14141c] border border-[#1e1e2a] hover:border-amber-400 transition-colors duration-300 p-8 relative overflow-hidden rounded-xs shadow-xl">
+                  <div className="bg-[#14141c] border border-[#1e1e2a] hover:border-amber-400 transition-colors duration-300 relative overflow-hidden rounded-xs shadow-xl">
+                    {event.bannerUrl && (
+                      <div className="relative h-40 w-full overflow-hidden bg-[#08080c] border-b border-[#1e1e2a]">
+                        <img
+                          src={event.bannerUrl}
+                          alt={event.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-linear-to-t from-[#14141c] via-transparent to-transparent" />
+                      </div>
+                    )}
+                    <div className="p-8">
                     <div className="flex items-start justify-between mb-6">
                       <div>
                         {event.status === "live" && (
@@ -77,6 +89,14 @@ export default function EventMerchBlock() {
                         <Calendar size={14} className="text-amber-400 shrink-0" />
                         <span className="font-sans text-sm">{event.date}</span>
                       </div>
+                      {event.startDate && (
+                        <div className="pt-2 border-t border-[#1e1e2a]/60">
+                          <p className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                            <Clock size={12} /> Event Launch Countdown
+                          </p>
+                          <DropCountdown targetDate={event.startDate} size="sm" showLabels={true} />
+                        </div>
+                      )}
                     </div>
 
                     <div className="flex items-center justify-between pt-6 border-t border-[#1e1e2a]">
@@ -86,6 +106,7 @@ export default function EventMerchBlock() {
                       <span className="text-xs font-bold text-gray-400 group-hover:text-amber-400 transition-colors flex items-center gap-1">
                         Scan QR to Access <ArrowRight size={12} />
                       </span>
+                    </div>
                     </div>
                   </div>
                 </Link>

@@ -5,6 +5,51 @@
 // 2. Marvel Families & Factions (Avengers, Guardians, X-Men, F4, etc.)
 // ─────────────────────────────────────────────────────────
 
+export interface MerchCategory {
+  id: string;
+  slug: string;
+  name: string;
+  tagline: string;
+  description: string;
+  accent: string;
+}
+
+// ── 4 Core Merchandising Categories (Topwear, Bottomwear, Footwear, Accessories) ──
+export const MERCH_CATEGORIES: MerchCategory[] = [
+  {
+    id: "cat_topwear",
+    slug: "topwear",
+    name: "Topwear",
+    tagline: "T-Shirts, Hoodies & Jackets",
+    description: "Official Marvel Graphic Tees, Hoodies, Oversized Tops & Jackets",
+    accent: "#E23636",
+  },
+  {
+    id: "cat_bottomwear",
+    slug: "bottomwear",
+    name: "Bottomwear",
+    tagline: "Joggers, Shorts & Cargo Pants",
+    description: "Tactical Joggers, Superhero Shorts, Cargo Pants & Trackpants",
+    accent: "#F0B429",
+  },
+  {
+    id: "cat_footwear",
+    slug: "footwear",
+    name: "Footwear",
+    tagline: "Sneakers, Sliders & Clogs",
+    description: "Marvel Collector Sneakers, Comfort Sliders, Clogs & Boots",
+    accent: "#00f0ff",
+  },
+  {
+    id: "cat_accessories",
+    slug: "accessories",
+    name: "Accessories",
+    tagline: "Caps, Backpacks & Phone Cases",
+    description: "Caps, Tactical Backpacks, Phone Covers, Relics & Collectibles",
+    accent: "#A855F7",
+  },
+];
+
 export interface MarvelFamily {
   id: string;
   slug: string;

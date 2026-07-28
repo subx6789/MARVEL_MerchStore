@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import { Inter, Bebas_Neue } from "next/font/google";
 import { Toaster } from "sonner";
 import AuthModal from "@/components/auth/AuthModal";
+import RealtimeProvider from "@/components/shared/RealtimeProvider";
 import "./globals.css";
 
 // ── Google Fonts ─────────────────────────────────────────
@@ -73,10 +74,12 @@ export default function RootLayout({
         className="font-sans bg-marvel-black text-marvel-white antialiased"
         suppressHydrationWarning
       >
-        {children}
+        <RealtimeProvider>
+          {children}
 
-        {/* Global Auth Modal */}
-        <AuthModal />
+          {/* Global Auth Modal */}
+          <AuthModal />
+        </RealtimeProvider>
 
         {/* Global Toast Notifications */}
         <Toaster

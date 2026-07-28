@@ -13,23 +13,23 @@ export default function AdminAnalyticsPage() {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="admin-stat">
           <span className="label-marvel">Gross Revenue</span>
-          <p className="font-display text-3xl text-marvel-white">₹4,82,350</p>
-          <span className="text-xs text-emerald-400 font-bold">+14.2%</span>
+          <p className="font-display text-3xl text-marvel-white">₹0</p>
+          <span className="text-xs text-emerald-400 font-bold">0%</span>
         </div>
         <div className="admin-stat">
           <span className="label-marvel">Drop Conversion Rate</span>
-          <p className="font-display text-3xl text-marvel-gold">18.4%</p>
-          <span className="text-xs text-emerald-400 font-bold">+3.1%</span>
+          <p className="font-display text-3xl text-marvel-gold">0%</p>
+          <span className="text-xs text-emerald-400 font-bold">0%</span>
         </div>
         <div className="admin-stat">
           <span className="label-marvel">Avg Order Value</span>
-          <p className="font-display text-3xl text-marvel-white">₹2,868</p>
-          <span className="text-xs text-emerald-400 font-bold">+5.8%</span>
+          <p className="font-display text-3xl text-marvel-white">₹0</p>
+          <span className="text-xs text-emerald-400 font-bold">0%</span>
         </div>
         <div className="admin-stat">
           <span className="label-marvel">Event Pass Scans</span>
-          <p className="font-display text-3xl text-purple-400">1,420</p>
-          <span className="text-xs text-purple-400 font-bold">Comic Con Mumbai</span>
+          <p className="font-display text-3xl text-purple-400">0</p>
+          <span className="text-xs text-purple-400 font-bold">No active events</span>
         </div>
       </div>
     </div>

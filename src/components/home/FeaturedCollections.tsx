@@ -1,17 +1,19 @@
 "use client";
 
-// ─────────────────────────────────────────────────────────
-// Featured Collections — Marvel Merchandising Taxonomy
-// 1. Power Origins (Hero Power Type Classifications)
-// 2. Families & Factions (Teams, Organizations & Collections)
-// ─────────────────────────────────────────────────────────
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { ArrowRight, Shield, Sparkles, Flame, Atom, Cpu, Wand2 } from "lucide-react";
+import { ArrowRight, Shield, Sparkles, Flame, Atom, Cpu, Wand2, Shirt, Footprints, Watch, Scissors } from "lucide-react";
 import { staggerContainerVariants, staggerItemVariants, fadeUpVariants } from "@/lib/motion/variants";
 import { useProductStore } from "@/stores/productStore";
-import { MARVEL_FAMILIES, POWER_ORIGINS } from "@/types/taxonomy";
+import { MARVEL_FAMILIES, POWER_ORIGINS, MERCH_CATEGORIES } from "@/types/taxonomy";
 import { soundFx } from "@/lib/sound";
+
+const CATEGORY_ICONS: Record<string, any> = {
+  topwear: Shirt,
+  bottomwear: Scissors,
+  footwear: Footprints,
+  accessories: Watch,
+};
 
 const ORIGIN_ICONS: Record<string, any> = {
   mutant: Flame,
@@ -27,6 +29,67 @@ export default function FeaturedCollections() {
 
   return (
     <section className="section-marvel text-white space-y-16">
+      {/* ── 0. CORE MERCH CATEGORIES (Topwear, Bottomwear, Footwear, Accessories) ── */}
+      <motion.div
+        variants={staggerContainerVariants}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, margin: "-80px" }}
+      >
+        <motion.div variants={fadeUpVariants} className="mb-8">
+          <span className="text-xs font-bold text-red-500 uppercase tracking-[0.2em] block mb-1">
+            OFFICIAL APPAREL & MERCHANDISE
+          </span>
+          <h2 className="font-display text-4xl md:text-5xl text-white tracking-wide uppercase font-extrabold">
+            PRODUCT CATEGORIES
+          </h2>
+          <p className="text-gray-400 text-sm max-w-xl mt-1">
+            Shop by core merchandise types — Topwear, Bottomwear, Footwear & Accessories.
+          </p>
+        </motion.div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+          {MERCH_CATEGORIES.map((cat) => {
+            const IconComponent = CATEGORY_ICONS[cat.slug] || Shirt;
+            const count = products.filter(
+              (p) =>
+                p.category?.toLowerCase() === cat.slug ||
+                p.name?.toLowerCase().includes(cat.slug)
+            ).length;
+
+            return (
+              <motion.div key={cat.slug} variants={staggerItemVariants}>
+                <Link
+                  href={`/shop?category=${cat.slug}`}
+                  onClick={() => soundFx.playClick()}
+                  className="block p-6 border border-[#1e1e2a] rounded-xs bg-[#14141c] hover:border-red-500 transition-all duration-300 group shadow-xl hover:scale-[1.02] relative overflow-hidden"
+                >
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xs">
+                      <IconComponent size={26} className="text-red-500 group-hover:scale-110 transition-transform" />
+                    </div>
+                    <span className="text-xs font-mono font-bold text-gray-400 bg-[#08080c] px-2.5 py-1 border border-[#1e1e2a]">
+                      {count} Gear
+                    </span>
+                  </div>
+                  <h3 className="font-display text-3xl font-black uppercase tracking-wide text-white group-hover:text-red-500 transition-colors mb-1">
+                    {cat.name}
+                  </h3>
+                  <p className="text-xs font-bold text-gray-300 mb-1">{cat.tagline}</p>
+                  <p className="text-[11px] text-gray-400 leading-relaxed font-normal">
+                    {cat.description}
+                  </p>
+
+                  <div className="mt-4 pt-3 border-t border-[#1e1e2a] flex items-center justify-between text-xs font-bold text-gray-400 group-hover:text-white">
+                    <span>Explore {cat.name}</span>
+                    <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
+                  </div>
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
+      </motion.div>
       {/* ── 1. POWER ORIGINS (Hero Power Type Classifications) ── */}
       <motion.div
         variants={staggerContainerVariants}

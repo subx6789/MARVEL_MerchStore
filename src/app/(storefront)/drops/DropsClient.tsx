@@ -89,6 +89,10 @@ function DropCard({ drop }: { drop: DropItem }) {
   const isScheduled = drop.status === "scheduled";
   const isSoldOut = drop.status === "ended" || remaining === 0;
 
+  const discountPercent = drop.comparePrice && drop.comparePrice > drop.price
+    ? Math.round(((drop.comparePrice - drop.price) / drop.comparePrice) * 100)
+    : 0;
+
   return (
     <motion.div variants={staggerItemVariants}>
       <div
@@ -98,18 +102,44 @@ function DropCard({ drop }: { drop: DropItem }) {
       >
         {isLive && <div className="absolute top-0 left-0 right-0 h-1 bg-red-500 shadow-[0_0_12px_rgba(226,54,54,0.8)]" />}
 
+        {/* Drop Banner Image */}
+        {drop.imageUrl && (
+          <div className="h-44 -mx-6 -mt-6 mb-4 overflow-hidden relative bg-[#08080c]">
+            <img
+              src={drop.imageUrl}
+              alt={drop.name}
+              className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#14141c] via-[#14141c]/30 to-transparent" />
+          </div>
+        )}
+
         <div className="flex items-start justify-between mb-4">
           <div>
-            {isLive && <MarvelBadge variant="live" className="mb-2" />}
-            {isScheduled && <MarvelBadge variant="limited" className="mb-2" />}
-            {isSoldOut && <MarvelBadge variant="sold-out" className="mb-2" />}
+            <div className="flex items-center gap-2 mb-2">
+              {isLive && <MarvelBadge variant="live" />}
+              {isScheduled && <MarvelBadge variant="limited" />}
+              {isSoldOut && <MarvelBadge variant="sold-out" />}
+              {discountPercent > 0 && (
+                <span className="bg-emerald-500 text-black text-[9px] font-black uppercase px-2 py-0.5 tracking-wider">
+                  {discountPercent}% OFF
+                </span>
+              )}
+            </div>
             <h3 className="font-display text-2xl text-white tracking-wide leading-tight font-extrabold">
               {drop.name}
             </h3>
           </div>
-          <span className="font-display text-3xl text-red-500 font-extrabold shrink-0 ml-4">
-            {formatPrice(drop.price)}
-          </span>
+          <div className="text-right shrink-0 ml-4">
+            <span className="font-display text-3xl text-red-500 font-extrabold block">
+              {formatPrice(drop.price)}
+            </span>
+            {drop.comparePrice && discountPercent > 0 && (
+              <span className="font-sans text-xs text-gray-500 line-through block -mt-1">
+                {formatPrice(drop.comparePrice)}
+              </span>
+            )}
+          </div>
         </div>
 
         <p className="font-sans text-xs text-gray-400 mb-6 leading-relaxed">

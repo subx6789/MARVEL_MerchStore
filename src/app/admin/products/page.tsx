@@ -5,11 +5,14 @@
 // Merchandising Taxonomy: Power Origins & Marvel Families Tagging
 // ─────────────────────────────────────────────────────────
 import { useState } from "react";
-import { Plus, Search, Trash2, Package, Check } from "lucide-react";
+import { useDropzone } from "react-dropzone";
+import { Plus, Search, Trash2, Package, Check, Upload, Image as ImageIcon, Layers } from "lucide-react";
 import { toast } from "sonner";
 import { useProductStore } from "@/stores/productStore";
-import { MARVEL_FAMILIES, POWER_ORIGINS } from "@/types/taxonomy";
+import { MARVEL_FAMILIES, POWER_ORIGINS, MERCH_CATEGORIES } from "@/types/taxonomy";
 import { formatPrice } from "@/lib/utils";
+import { uploadToImageKit } from "@/lib/imagekit";
+import { broadcastRealtimeEvent } from "@/lib/supabase/realtime";
 
 export default function AdminProductsPage() {
   const { products, addProduct, deleteProduct } = useProductStore();
@@ -22,6 +25,33 @@ export default function AdminProductsPage() {
   const [stockCount, setStockCount] = useState("");
   const [sku, setSku] = useState("");
   const [imageUrl, setImageUrl] = useState("");
+  const [category, setCategory] = useState("topwear");
+  const [isUploading, setIsUploading] = useState(false);
+
+  // react-dropzone configuration with live ImageKit upload
+  const onDrop = async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (file) {
+      setIsUploading(true);
+      toast.loading("Uploading image to ImageKit CDN...", { id: "ik-upload" });
+      try {
+        const res = await uploadToImageKit(file);
+        setImageUrl(res.url);
+        toast.success("Image uploaded to ImageKit CDN!", { id: "ik-upload" });
+      } catch (err: any) {
+        toast.error("Failed to upload to ImageKit: " + (err.message || "Unknown error"), { id: "ik-upload" });
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { "image/*": [] },
+    maxFiles: 1,
+    disabled: isUploading,
+  });
 
   // Taxonomy Tagging State
   const [selectedFamilies, setSelectedFamilies] = useState<string[]>([]);
@@ -48,18 +78,34 @@ export default function AdminProductsPage() {
     const stockNum = parseInt(stockCount);
     const generatedSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
 
-    addProduct({
+    const newProd = {
       name,
       slug: generatedSlug,
       price: priceNum,
-      category: selectedFamilies[0] || selectedOrigins[0] || "general",
+      category: category,
       families: selectedFamilies,
       origins: selectedOrigins,
       stockCount: stockNum,
       sku: sku || `SKU-${Date.now().toString().slice(-6)}`,
       imageUrl: imageUrl || "https://images.unsplash.com/photo-1571945153237-4929e783af4a?w=600",
-      status: "active",
-    });
+      status: "active" as const,
+    };
+
+    // Directly insert into Supabase Database via PostgreSQL Drizzle API
+    fetch("/api/products", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(newProd),
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data?.product) {
+          const savedProd = { ...newProd, id: data.product.id };
+          addProduct(savedProd);
+          broadcastRealtimeEvent("product_created", { product: savedProd });
+        }
+      })
+      .catch((err) => console.error("Supabase insert error:", err));
 
     toast.success(`Product "${name}" created live with Families & Origins tagging!`);
     setName("");
@@ -98,13 +144,13 @@ export default function AdminProductsPage() {
       {/* Filter Bar */}
       <div className="flex items-center justify-between gap-4 bg-[#14141c] border border-[#1e1e2a] p-4 rounded-xs">
         <div className="relative flex-1 max-w-sm">
-          <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          <Search size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 z-10 pointer-events-none" />
           <input
             type="text"
             placeholder="Filter by product name..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="input-marvel pl-9 pr-4 py-2 text-xs bg-[#08080c] border-[#1e1e2a]"
+            className="input-marvel text-xs bg-[#08080c] border-[#1e1e2a] !pl-10 pr-4 py-2"
           />
         </div>
         <span className="text-xs font-bold text-gray-400 uppercase tracking-widest">{filtered.length} items</span>
@@ -113,10 +159,19 @@ export default function AdminProductsPage() {
       {/* Add Product Modal */}
       {isAddOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
-          <div className="bg-[#14141c] border border-[#1e1e2a] p-6 md:p-8 w-full max-w-2xl rounded-xs shadow-2xl space-y-4 my-8">
-            <h2 className="font-display text-2xl text-white tracking-wide uppercase border-b border-[#1e1e2a] pb-3 font-extrabold">
-              ADD NEW MERCHANDISE PRODUCT
-            </h2>
+          <div className="bg-[#14141c] border border-[#1e1e2a] p-6 md:p-8 w-full max-w-2xl rounded-xs shadow-2xl space-y-4 my-8 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-[#1e1e2a] pb-3">
+              <h2 className="font-display text-2xl text-white tracking-wide uppercase font-extrabold">
+                ADD NEW MERCHANDISE PRODUCT
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsAddOpen(false)}
+                className="text-gray-400 hover:text-white font-bold text-sm px-2 py-1"
+              >
+                ✕
+              </button>
+            </div>
             <form onSubmit={handleAddSubmit} className="space-y-5 text-xs font-sans">
               <div>
                 <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">PRODUCT NAME</label>
@@ -130,7 +185,21 @@ export default function AdminProductsPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div>
+                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">CATEGORY</label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="input-marvel py-2.5 bg-[#08080c] border-[#1e1e2a] text-xs font-bold uppercase text-red-400"
+                  >
+                    {MERCH_CATEGORIES.map((cat) => (
+                      <option key={cat.slug} value={cat.slug}>
+                        {cat.name} ({cat.tagline})
+                      </option>
+                    ))}
+                  </select>
+                </div>
                 <div>
                   <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">PRICE (₹)</label>
                   <input
@@ -166,14 +235,63 @@ export default function AdminProductsPage() {
               </div>
 
               <div>
-                <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">IMAGE URL</label>
-                <input
-                  type="text"
-                  value={imageUrl}
-                  onChange={(e) => setImageUrl(e.target.value)}
-                  placeholder="https://images.unsplash.com/..."
-                  className="input-marvel py-2.5 bg-[#08080c] border-[#1e1e2a]"
-                />
+                <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">
+                  PRODUCT IMAGE (IMAGEKIT DRAG & DROP)
+                </label>
+                
+                {/* Drag and Drop Zone */}
+                <div
+                  {...getRootProps()}
+                  className={`border-2 border-dashed rounded-xs p-5 text-center cursor-pointer transition-all duration-200 ${
+                    isDragActive
+                      ? "border-red-500 bg-red-500/10"
+                      : imageUrl
+                      ? "border-emerald-500/50 bg-[#08080c]"
+                      : "border-[#1e1e2a] hover:border-gray-500 bg-[#08080c]"
+                  }`}
+                >
+                  <input {...getInputProps()} />
+                  {isUploading ? (
+                    <div className="space-y-1.5 py-2 animate-pulse">
+                      <Upload size={24} className="mx-auto text-marvel-gold animate-spin" />
+                      <p className="font-bold text-marvel-gold text-xs">Uploading to ImageKit CDN...</p>
+                    </div>
+                  ) : imageUrl ? (
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={imageUrl}
+                          alt="Product Preview"
+                          className="w-14 h-14 object-cover rounded-xs border border-[#1e1e2a]"
+                        />
+                        <div className="text-left">
+                          <p className="text-emerald-400 font-bold text-xs flex items-center gap-1">
+                            <Check size={14} /> Image Selected
+                          </p>
+                          <p className="text-gray-500 text-[10px]">Drag a new image to replace</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setImageUrl("");
+                        }}
+                        className="text-gray-400 hover:text-red-400 text-xs uppercase font-bold"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5 py-2">
+                      <Upload size={24} className="mx-auto text-gray-400" />
+                      <p className="font-bold text-gray-300 text-xs">
+                        {isDragActive ? "Drop product image here..." : "Drag & drop product image here, or click to browse"}
+                      </p>
+                      <p className="text-gray-500 text-[10px]">Supports PNG, JPG, WEBP formats (ImageKit CDN)</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* ── 1. Families (Teams / Factions / Collections) ── */}
