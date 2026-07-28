@@ -105,11 +105,21 @@ export default function DropSpotlight() {
           {/* Right — Visual Graphic */}
           <motion.div variants={fadeUpVariants} className="relative">
             <div className="relative aspect-square bg-[#14141c] border border-[#1e1e2a] overflow-hidden group rounded-xs shadow-2xl">
-              <div className="absolute inset-0 bg-linear-to-br from-red-600/10 via-transparent to-amber-500/5" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <Shield size={180} className="text-red-500/20" strokeWidth={0.5} />
-              </div>
-              <div className="absolute top-0 left-0 bg-red-600 px-4 py-2">
+              {drop.imageUrl ? (
+                <img
+                  src={drop.imageUrl}
+                  alt={drop.name}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                />
+              ) : (
+                <>
+                  <div className="absolute inset-0 bg-linear-to-br from-red-600/10 via-transparent to-amber-500/5" />
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <Shield size={180} className="text-red-500/20" strokeWidth={0.5} />
+                  </div>
+                </>
+              )}
+              <div className="absolute top-0 left-0 bg-red-600 px-4 py-2 z-10">
                 <span className="font-display text-white text-xs tracking-widest font-black uppercase">
                   LIMITED DROP
                 </span>

@@ -1,10 +1,10 @@
 // ─────────────────────────────────────────────────────────
-// Next.js Middleware — Route Protection
+// Next.js Proxy — Route Protection
 // Protects /admin routes using session cookies
 // ─────────────────────────────────────────────────────────
 import { type NextRequest, NextResponse } from "next/server";
 
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Check for session cookie

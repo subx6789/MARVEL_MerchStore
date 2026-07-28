@@ -19,6 +19,7 @@ import {
   VolumeX,
   QrCode,
   Sparkles,
+  Shield,
 } from "lucide-react";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";

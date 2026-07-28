@@ -5,9 +5,11 @@
 // Dynamic Event Creation & Management via useProductStore
 // ─────────────────────────────────────────────────────────
 import { useState } from "react";
-import { Plus, QrCode, Calendar, MapPin, Trash2, Package } from "lucide-react";
+import { useDropzone } from "react-dropzone";
+import { Plus, QrCode, Calendar, MapPin, Trash2, Package, Upload, Check } from "lucide-react";
 import { toast } from "sonner";
 import { useProductStore } from "@/stores/productStore";
+import { uploadToImageKit } from "@/lib/imagekit";
 
 export default function AdminEventsPage() {
   const { events, addEvent, deleteEvent } = useProductStore();
@@ -15,34 +17,71 @@ export default function AdminEventsPage() {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [name, setName] = useState("");
   const [venue, setVenue] = useState("");
-  const [date, setDate] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
   const [description, setDescription] = useState("");
+  const [bannerUrl, setBannerUrl] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
   const [status, setStatus] = useState<"upcoming" | "live" | "ended">("upcoming");
+
+  // Dropzone setup for Event Banner
+  const onDrop = async (acceptedFiles: File[]) => {
+    const file = acceptedFiles[0];
+    if (file) {
+      setIsUploading(true);
+      toast.loading("Uploading event banner to ImageKit...", { id: "evt-ik" });
+      try {
+        const res = await uploadToImageKit(file, "/marvel-events");
+        setBannerUrl(res.url);
+        toast.success("Event banner uploaded to ImageKit!", { id: "evt-ik" });
+      } catch (err: any) {
+        toast.error("Upload failed: " + (err?.message || "Error"), { id: "evt-ik" });
+      } finally {
+        setIsUploading(false);
+      }
+    }
+  };
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { "image/*": [] },
+    maxFiles: 1,
+    disabled: isUploading,
+  });
 
   const handleAddSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name || !venue || !date) {
+    if (!name || !venue || !startDate) {
       toast.error("Please fill in required fields");
       return;
     }
 
     const generatedSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const formattedDateRange = `${new Date(startDate).toLocaleDateString("en-US", { month: "short", day: "numeric" })} – ${
+      endDate ? new Date(endDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" }) : new Date(startDate).getFullYear()
+    }`;
 
     addEvent({
+      id: `evt_${generatedSlug}_${Date.now()}`,
       name,
       venue,
-      date,
+      date: formattedDateRange,
+      startDate: new Date(startDate).toISOString(),
+      endDate: endDate ? new Date(endDate).toISOString() : new Date(Date.now() + 3 * 24 * 3600000).toISOString(),
       description: description || "Official Marvel event campaign.",
       status,
       productsCount: 12,
       slug: generatedSlug,
+      bannerUrl: bannerUrl || undefined,
     });
 
     toast.success(`Event campaign "${name}" created live!`);
     setName("");
     setVenue("");
-    setDate("");
+    setStartDate("");
+    setEndDate("");
     setDescription("");
+    setBannerUrl("");
     setIsAddOpen(false);
   };
 
@@ -66,11 +105,20 @@ export default function AdminEventsPage() {
 
       {/* Add Modal */}
       {isAddOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-          <div className="bg-[#14141c] border border-[#1e1e2a] p-6 md:p-8 w-full max-w-lg rounded-xs shadow-2xl space-y-4">
-            <h2 className="font-display text-2xl text-white tracking-wide uppercase border-b border-[#1e1e2a] pb-3">
-              CREATE EVENT CAMPAIGN
-            </h2>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm overflow-y-auto">
+          <div className="bg-[#14141c] border border-[#1e1e2a] p-6 md:p-8 w-full max-w-2xl rounded-xs shadow-2xl space-y-4 my-8 max-h-[90vh] overflow-y-auto">
+            <div className="flex items-center justify-between border-b border-[#1e1e2a] pb-3">
+              <h2 className="font-display text-2xl text-white tracking-wide uppercase font-extrabold">
+                CREATE EVENT CAMPAIGN
+              </h2>
+              <button
+                type="button"
+                onClick={() => setIsAddOpen(false)}
+                className="text-gray-400 hover:text-white font-bold text-sm px-2 py-1"
+              >
+                ✕
+              </button>
+            </div>
             <form onSubmit={handleAddSubmit} className="space-y-4 text-xs font-sans">
               <div>
                 <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">EVENT NAME</label>
@@ -84,9 +132,9 @@ export default function AdminEventsPage() {
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">VENUE</label>
+                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">VENUE LOCATION</label>
                   <input
                     type="text"
                     value={venue}
@@ -97,13 +145,22 @@ export default function AdminEventsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">EVENT DATES</label>
+                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">START DATE & TIME</label>
                   <input
-                    type="text"
-                    value={date}
-                    onChange={(e) => setDate(e.target.value)}
-                    placeholder="Aug 15–17, 2026"
-                    className="input-marvel py-2.5 bg-[#08080c] border-[#1e1e2a]"
+                    type="datetime-local"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="input-marvel py-2 bg-[#08080c] border-[#1e1e2a] text-gray-300 text-xs"
+                    required
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">END DATE & TIME</label>
+                  <input
+                    type="datetime-local"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="input-marvel py-2 bg-[#08080c] border-[#1e1e2a] text-gray-300 text-xs"
                     required
                   />
                 </div>
@@ -118,6 +175,65 @@ export default function AdminEventsPage() {
                   placeholder="Event details..."
                   className="input-marvel py-2.5 bg-[#08080c] border-[#1e1e2a]"
                 />
+              </div>
+
+              {/* Event Cover Image Dropzone */}
+              <div>
+                <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">
+                  EVENT COVER IMAGE (IMAGEKIT DRAG & DROP)
+                </label>
+                <div
+                  {...getRootProps()}
+                  className={`border-2 border-dashed rounded-xs p-4 text-center cursor-pointer transition-all duration-200 ${
+                    isDragActive
+                      ? "border-amber-500 bg-amber-500/10"
+                      : bannerUrl
+                      ? "border-emerald-500/50 bg-[#08080c]"
+                      : "border-[#1e1e2a] hover:border-gray-500 bg-[#08080c]"
+                  }`}
+                >
+                  <input {...getInputProps()} />
+                  {isUploading ? (
+                    <div className="space-y-1.5 py-2 animate-pulse">
+                      <Upload size={20} className="mx-auto text-amber-400 animate-spin" />
+                      <p className="font-bold text-amber-400 text-xs">Uploading cover to ImageKit CDN...</p>
+                    </div>
+                  ) : bannerUrl ? (
+                    <div className="flex items-center justify-between gap-4">
+                      <div className="flex items-center gap-3">
+                        <img
+                          src={bannerUrl}
+                          alt="Cover Preview"
+                          className="w-16 h-12 object-cover rounded-xs border border-[#1e1e2a]"
+                        />
+                        <div className="text-left">
+                          <p className="text-emerald-400 font-bold text-xs flex items-center gap-1">
+                            <Check size={14} /> Cover Uploaded
+                          </p>
+                          <p className="text-gray-500 text-[10px]">Drag new image to replace</p>
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setBannerUrl("");
+                        }}
+                        className="text-gray-400 hover:text-red-400 text-xs uppercase font-bold"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="space-y-1 py-1.5">
+                      <Upload size={20} className="mx-auto text-gray-400" />
+                      <p className="font-bold text-gray-300 text-xs">
+                        {isDragActive ? "Drop event cover image here..." : "Drag & drop event cover image here, or click to browse"}
+                      </p>
+                      <p className="text-gray-500 text-[10px]">Uploads automatically to ImageKit CDN</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div>

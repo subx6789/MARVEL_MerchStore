@@ -118,13 +118,11 @@ export default function ProductCard({
       <Link href={`/product/${slug}`} className="block">
         {/* Image Frame */}
         <div className="relative aspect-square overflow-hidden bg-[#08080c] border-b border-[#1e1e2a]">
-          <Image
+          <img
             src={imageUrl || "/images/placeholder-product.jpg"}
             alt={name}
-            fill
-            sizes="(max-width: 768px) 50vw, (max-width: 1200px) 33vw, 25vw"
             className={cn(
-              "object-cover transition-transform duration-700 ease-out",
+              "w-full h-full object-cover transition-transform duration-700 ease-out",
               isHovered ? "scale-108" : "scale-100"
             )}
           />

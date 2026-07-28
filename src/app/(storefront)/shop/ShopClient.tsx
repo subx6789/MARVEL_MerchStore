@@ -11,7 +11,7 @@ import { Search, X, ChevronDown, PackagePlus, ShoppingBag, Users, Sparkles } fro
 import ProductCard from "@/components/product/ProductCard";
 import { staggerContainerVariants, staggerItemVariants } from "@/lib/motion/variants";
 import { useProductStore } from "@/stores/productStore";
-import { MARVEL_FAMILIES, POWER_ORIGINS } from "@/types/taxonomy";
+import { MARVEL_FAMILIES, POWER_ORIGINS, MERCH_CATEGORIES } from "@/types/taxonomy";
 import { cn } from "@/lib/utils";
 
 const SORT_OPTIONS = [
@@ -24,7 +24,7 @@ const SORT_OPTIONS = [
 export default function ShopClient({ searchParams }: { searchParams: any }) {
   const { products } = useProductStore();
   const [selectedTag, setSelectedTag] = useState("");
-  const [activeTab, setActiveTab] = useState<"all" | "families" | "origins">("all");
+  const [activeTab, setActiveTab] = useState<"all" | "categories" | "families" | "origins">("categories");
   const [sort, setSort] = useState("featured");
   const [search, setSearch] = useState("");
 
@@ -62,7 +62,20 @@ export default function ShopClient({ searchParams }: { searchParams: any }) {
               : "bg-[#14141c] text-gray-400 border border-[#1e1e2a] hover:text-white"
           )}
         >
-          All Catalog Gear
+          All Catalog
+        </button>
+
+        <button
+          onClick={() => setActiveTab("categories")}
+          className={cn(
+            "px-4 py-2 text-xs font-bold uppercase tracking-widest transition-all cursor-pointer rounded-xs flex items-center gap-2 shrink-0",
+            activeTab === "categories"
+              ? "bg-red-500 text-white shadow-[0_0_12px_rgba(226,54,54,0.6)]"
+              : "bg-[#14141c] text-gray-400 border border-[#1e1e2a] hover:text-white"
+          )}
+        >
+          <ShoppingBag size={14} />
+          Merch Categories
         </button>
 
         <button
@@ -75,7 +88,7 @@ export default function ShopClient({ searchParams }: { searchParams: any }) {
           )}
         >
           <Users size={14} />
-          Families & Factions
+          Teams & Factions
         </button>
 
         <button
@@ -91,6 +104,34 @@ export default function ShopClient({ searchParams }: { searchParams: any }) {
           Power Origins
         </button>
       </div>
+
+      {/* ── 4 Core Categories Filter Badges ── */}
+      {activeTab === "categories" && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+          {MERCH_CATEGORIES.map((cat) => {
+            const isSelected = selectedTag === cat.slug;
+            return (
+              <button
+                key={cat.slug}
+                onClick={() => setSelectedTag(isSelected ? "" : cat.slug)}
+                className={cn(
+                  "p-3.5 border rounded-xs text-left transition-all cursor-pointer relative overflow-hidden group",
+                  isSelected
+                    ? "bg-red-500/20 border-red-500 shadow-[0_0_15px_rgba(226,54,54,0.4)]"
+                    : "bg-[#14141c] border-[#1e1e2a] hover:border-red-500/60"
+                )}
+              >
+                <p className="font-display text-lg text-white font-extrabold tracking-wide uppercase leading-tight">
+                  {cat.name}
+                </p>
+                <p className="text-[10px] text-gray-400 font-sans tracking-wide mt-0.5 truncate">
+                  {cat.tagline}
+                </p>
+              </button>
+            );
+          })}
+        </div>
+      )}
 
       {/* ── Sub-Category Filter Badges ── */}
       {activeTab === "families" && (

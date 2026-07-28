@@ -6,11 +6,7 @@ import { useState } from "react";
 import { Search, Eye, Filter } from "lucide-react";
 import { formatPrice } from "@/lib/utils";
 
-const DEMO_ORDERS = [
-  { id: "MVL-ABC123", customer: "Arjun Sharma", items: "Iron Man Tee (x1)", total: 1799, status: "confirmed", date: "Jul 26, 2026" },
-  { id: "MVL-DEF456", customer: "Priya Kapoor", items: "Spider-Man Hoodie (x1)", total: 3299, status: "shipped", date: "Jul 25, 2026" },
-  { id: "MVL-GHI789", customer: "Rahul Singh", items: "Wakanda Bomber (x1)", total: 5999, status: "pending", date: "Jul 25, 2026" },
-];
+const DEMO_ORDERS: Array<{ id: string; customer: string; items: string; total: number; status: string; date: string }> = [];
 
 export default function AdminOrdersPage() {
   return (
@@ -34,17 +30,25 @@ export default function AdminOrdersPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-marvel-black-border text-marvel-white-dim">
-            {DEMO_ORDERS.map((o) => (
-              <tr key={o.id} className="hover:bg-marvel-black-hover transition-colors">
-                <td className="p-4 font-mono font-bold text-marvel-white">{o.id}</td>
-                <td className="p-4">{o.customer}</td>
-                <td className="p-4">{o.items}</td>
-                <td className="p-4 text-marvel-white-muted">{o.date}</td>
-                <td className="p-4 font-display text-sm text-marvel-red">{formatPrice(o.total)}</td>
-                <td className="p-4"><span className="uppercase text-[9px] font-bold tracking-wider px-2 py-0.5 bg-blue-500/20 text-blue-400">{o.status}</span></td>
-                <td className="p-4 text-right"><button className="p-1.5 hover:text-marvel-white"><Eye size={14} /></button></td>
+            {DEMO_ORDERS.length === 0 ? (
+              <tr>
+                <td colSpan={7} className="p-8 text-center text-marvel-white-muted">
+                  No orders placed yet. Real customer orders will appear here.
+                </td>
               </tr>
-            ))}
+            ) : (
+              DEMO_ORDERS.map((o) => (
+                <tr key={o.id} className="hover:bg-marvel-black-hover transition-colors">
+                  <td className="p-4 font-mono font-bold text-marvel-white">{o.id}</td>
+                  <td className="p-4">{o.customer}</td>
+                  <td className="p-4">{o.items}</td>
+                  <td className="p-4 text-marvel-white-muted">{o.date}</td>
+                  <td className="p-4 font-display text-sm text-marvel-red">{formatPrice(o.total)}</td>
+                  <td className="p-4"><span className="uppercase text-[9px] font-bold tracking-wider px-2 py-0.5 bg-blue-500/20 text-blue-400">{o.status}</span></td>
+                  <td className="p-4 text-right"><button className="p-1.5 hover:text-marvel-white"><Eye size={14} /></button></td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>

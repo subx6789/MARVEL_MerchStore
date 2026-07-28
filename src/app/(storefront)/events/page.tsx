@@ -5,8 +5,9 @@
 // Powered by useProductStore — No static hardcoded mock data
 // ─────────────────────────────────────────────────────────
 import Link from "next/link";
-import { MapPin, Calendar, QrCode, ArrowRight, PackagePlus } from "lucide-react";
+import { MapPin, Calendar, QrCode, ArrowRight, PackagePlus, Clock } from "lucide-react";
 import { useProductStore } from "@/stores/productStore";
+import DropCountdown from "@/components/drops/DropCountdown";
 import { soundFx } from "@/lib/sound";
 
 export default function EventsPage() {
@@ -55,8 +56,18 @@ export default function EventsPage() {
                 onClick={() => soundFx.playClick()}
                 className="block group"
               >
-                <div className="bg-[#14141c] border border-[#1e1e2a] hover:border-amber-400 transition-colors duration-300 p-6 h-full flex flex-col rounded-xs shadow-xl">
-                  <div className="flex items-start justify-between mb-4">
+                <div className="bg-[#14141c] border border-[#1e1e2a] hover:border-amber-400 transition-colors duration-300 h-full flex flex-col rounded-xs shadow-xl overflow-hidden">
+                  {event.bannerUrl && (
+                    <div className="relative h-36 w-full overflow-hidden bg-[#08080c] border-b border-[#1e1e2a]">
+                      <img
+                        src={event.bannerUrl}
+                        alt={event.name}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      />
+                    </div>
+                  )}
+                  <div className="p-6 flex-1 flex flex-col">
+                    <div className="flex items-start justify-between mb-4">
                     <span className="font-sans text-[9px] font-bold tracking-widest uppercase px-2.5 py-1 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
                       {event.status}
                     </span>
@@ -75,6 +86,14 @@ export default function EventsPage() {
                       <Calendar size={12} className="text-amber-400 shrink-0" />
                       <span className="font-sans text-xs">{event.date}</span>
                     </div>
+                    {event.startDate && (
+                      <div className="pt-2 border-t border-[#1e1e2a]/60">
+                        <p className="text-[10px] font-bold text-amber-400 uppercase tracking-widest mb-1.5 flex items-center gap-1">
+                          <Clock size={12} /> Event Countdown
+                        </p>
+                        <DropCountdown targetDate={event.startDate} size="sm" showLabels={true} />
+                      </div>
+                    )}
                   </div>
                   <div className="flex items-center justify-between pt-4 border-t border-[#1e1e2a]">
                     <span className="text-[10px] font-extrabold uppercase tracking-widest text-amber-400">
@@ -83,6 +102,7 @@ export default function EventsPage() {
                     <span className="text-xs font-bold text-gray-400 group-hover:text-amber-400 transition-colors flex items-center gap-1">
                       View Event <ArrowRight size={12} />
                     </span>
+                  </div>
                   </div>
                 </div>
               </Link>
