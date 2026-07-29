@@ -23,7 +23,7 @@ const footerLinks = {
     { label: "Comic Con Access", href: "/unlock" },
   ],
   Account: [
-    { label: "Admin Portal", href: "/admin/login" },
+    { label: "Admin Portal", href: "/admin" },
     { label: "My Profile", href: "/profile" },
     { label: "My Orders", href: "/orders" },
     { label: "Wishlist", href: "/wishlist" },

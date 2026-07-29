@@ -4,13 +4,15 @@
 // ─────────────────────────────────────────────────────────
 import { useState } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import {
   LayoutDashboard, Package, Zap, ShoppingCart, Tag,
   Calendar, Users, BarChart2, Settings, ChevronLeft,
-  ChevronRight, ExternalLink, Shield,
+  ChevronRight, ExternalLink, Shield, LogOut,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/authStore";
+import { soundFx } from "@/lib/sound";
 
 const NAV_ITEMS = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
@@ -27,10 +29,14 @@ const NAV_ITEMS = [
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
+  const { logout } = useAuthStore();
 
-  if (pathname === "/admin/login") {
-    return <>{children}</>;
-  }
+  const handleLogout = async () => {
+    soundFx.playClick();
+    await logout();
+    router.push("/");
+  };
 
   return (
     <div className="flex h-screen bg-marvel-black overflow-hidden">
@@ -59,7 +65,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           )}
           <button
             onClick={() => setCollapsed(!collapsed)}
-            className="p-1.5 text-marvel-white-muted hover:text-marvel-white hover:bg-marvel-black-hover transition-colors"
+            className="p-1.5 text-marvel-white-muted hover:text-marvel-white hover:bg-marvel-black-hover transition-colors cursor-pointer"
           >
             {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
           </button>
@@ -91,19 +97,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        {/* Bottom */}
-        <div className="border-t border-marvel-black-border p-3 shrink-0">
+        {/* Bottom Actions */}
+        <div className="border-t border-marvel-black-border p-3 shrink-0 space-y-1">
           <Link
             href="/"
             target="_blank"
             className={cn(
-              "flex items-center gap-2 text-marvel-white-muted hover:text-marvel-white transition-colors px-1 py-2",
+              "flex items-center gap-2 text-marvel-white-muted hover:text-marvel-white transition-colors px-2 py-1.5 rounded-xs text-xs",
               collapsed && "justify-center"
             )}
           >
             <ExternalLink size={14} />
-            {!collapsed && <span className="font-sans text-xs">View Store</span>}
+            {!collapsed && <span>View Store</span>}
           </Link>
+
+          <button
+            onClick={handleLogout}
+            title={collapsed ? "Log Out" : undefined}
+            className={cn(
+              "w-full flex items-center gap-2 text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-colors px-2 py-1.5 rounded-xs text-xs cursor-pointer font-bold uppercase tracking-wider",
+              collapsed && "justify-center"
+            )}
+          >
+            <LogOut size={14} />
+            {!collapsed && <span>Log Out</span>}
+          </button>
         </div>
       </aside>
 
@@ -114,11 +132,18 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           <h1 className="font-sans text-sm font-600 text-marvel-white capitalize">
             {pathname.split("/").pop()?.replace(/-/g, " ") || "Dashboard"}
           </h1>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-4">
             <span className="badge-live text-[9px] px-2 py-0.5">
               <span className="w-1.5 h-1.5 bg-white rounded-full animate-pulse" />
               Admin Active
             </span>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-1.5 px-3 py-1 bg-red-500/10 border border-red-500/30 hover:bg-red-500 hover:text-white text-red-400 text-xs font-bold uppercase tracking-wider transition-all rounded-xs cursor-pointer"
+            >
+              <LogOut size={13} />
+              <span>Log Out</span>
+            </button>
           </div>
         </header>
 

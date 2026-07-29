@@ -11,10 +11,33 @@ import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { toast } from "sonner";
 
+import { soundFx } from "@/lib/sound";
+
 export default function RealtimeProvider({ children }: { children: React.ReactNode }) {
   const { addProduct, updateProduct, deleteProduct, addDrop, updateDrop, deleteDrop, products } = useProductStore();
 
   useEffect(() => {
+    // ── Global Touch & Click SFX Listener ──
+    const handleGlobalClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      const clickable = target.closest("button, a, input[type='button'], input[type='submit'], [role='button'], .cursor-pointer");
+      if (clickable) {
+        soundFx.playClick();
+      }
+    };
+
+    const handleGlobalMouseEnter = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+      const hoverable = target.closest("button, a, [role='button'], .cursor-pointer");
+      if (hoverable) {
+        soundFx.playHover();
+      }
+    };
+
+    document.addEventListener("click", handleGlobalClick, { capture: true, passive: true });
+    document.addEventListener("mouseenter", handleGlobalMouseEnter, { capture: true, passive: true });
     // ── 0. Initial Fetch from Supabase PostgreSQL Database ──
     fetch("/api/products")
       .then((res) => res.json())
@@ -117,6 +140,8 @@ export default function RealtimeProvider({ children }: { children: React.ReactNo
     window.addEventListener("storage", handleStorageChange);
 
     return () => {
+      document.removeEventListener("click", handleGlobalClick, { capture: true });
+      document.removeEventListener("mouseenter", handleGlobalMouseEnter, { capture: true });
       supabase.removeChannel(realtimeChannel);
       supabase.removeChannel(dbChannel);
       window.removeEventListener("storage", handleStorageChange);

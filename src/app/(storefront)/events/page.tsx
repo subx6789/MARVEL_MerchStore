@@ -14,24 +14,8 @@ export default function EventsPage() {
   const { events } = useProductStore();
 
   return (
-    <div className="text-white">
-      <div className="bg-[#08080c] border-b border-[#1e1e2a] py-20 px-4 md:px-8 relative overflow-hidden">
-        <div className="absolute inset-0 bg-linear-to-r from-amber-500/5 to-transparent" />
-        <div className="max-w-7xl mx-auto relative">
-          <span className="bg-[#00f0ff]/10 border border-[#00f0ff]/40 text-[#00f0ff] text-[10px] font-black px-2.5 py-0.5 tracking-widest uppercase mb-4 inline-flex">
-            VIP ACCESS
-          </span>
-          <h1 className="font-display text-4xl md:text-6xl text-white tracking-wide mb-4 uppercase font-bold">
-            MARVEL EVENTS
-          </h1>
-          <p className="font-sans text-gray-400 text-sm max-w-xl leading-relaxed">
-            Attend official Marvel events for exclusive merchandise unavailable anywhere else. Scan your ticket QR code for instant VIP collection access.
-          </p>
-        </div>
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 md:px-8 py-12">
-        {events.length === 0 ? (
+    <div className="text-white pt-24 max-w-7xl mx-auto px-4 md:px-8 pb-12">
+      {events.length === 0 ? (
           <div className="py-20 text-center bg-[#14141c] border border-[#1e1e2a] rounded-xs p-8 max-w-xl mx-auto">
             <QrCode size={48} className="text-[#f0b429] mx-auto mb-4" />
             <h2 className="font-display text-3xl text-white tracking-widest uppercase mb-2">NO EVENTS REGISTERED</h2>
@@ -122,7 +106,6 @@ export default function EventsPage() {
             </p>
           </div>
         </div>
-      </div>
     </div>
   );
 }

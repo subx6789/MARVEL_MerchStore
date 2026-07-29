@@ -41,3 +41,28 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: error.message || "Failed to save product" }, { status: 500 });
   }
 }
+
+export async function DELETE(req: NextRequest) {
+  try {
+    const { searchParams } = new URL(req.url);
+    const id = searchParams.get("id");
+    const type = searchParams.get("type") || "product";
+
+    if (!id) {
+      return NextResponse.json({ error: "Missing ID" }, { status: 400 });
+    }
+
+    if (type === "drop") {
+      const { eq } = await import("drizzle-orm");
+      await db.delete(limitedDrops).where(eq(limitedDrops.id, id));
+    } else {
+      const { eq } = await import("drizzle-orm");
+      await db.delete(products).where(eq(products.id, id));
+    }
+
+    return NextResponse.json({ success: true, id });
+  } catch (error: any) {
+    console.error("Error deleting item from database:", error);
+    return NextResponse.json({ error: error.message || "Failed to delete" }, { status: 500 });
+  }
+}

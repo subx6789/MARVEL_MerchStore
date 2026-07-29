@@ -21,6 +21,7 @@ export interface ProductItem {
   families?: string[]; // e.g. ["avengers", "guardians-of-the-galaxy"]
   badge?: "limited" | "new" | "exclusive" | "event-only" | "vip";
   stockCount: number;
+  sizeStocks?: Record<string, number>;
   sku: string;
   status: "active" | "archived" | "draft";
 }
@@ -52,6 +53,11 @@ export interface EventItem {
   productsCount: number;
   description: string;
   bannerUrl?: string;
+  ticketPrice?: number;
+  totalSeats?: number;
+  bookedSeats?: number;
+  accessCode?: string;
+  exclusiveDropIds?: string[];
 }
 
 export interface CouponItem {

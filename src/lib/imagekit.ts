@@ -91,3 +91,22 @@ export async function uploadToImageKit(
     };
   }
 }
+
+/**
+ * Client-side ImageKit Image Deleter helper
+ */
+export async function deleteFromImageKit(imageUrlOrFileId: string): Promise<boolean> {
+  if (!imageUrlOrFileId) return false;
+  try {
+    const param = imageUrlOrFileId.startsWith("http")
+      ? `url=${encodeURIComponent(imageUrlOrFileId)}`
+      : `fileId=${encodeURIComponent(imageUrlOrFileId)}`;
+    const res = await fetch(`/api/upload-image?${param}`, {
+      method: "DELETE",
+    });
+    return res.ok;
+  } catch (err) {
+    console.error("Failed to delete from ImageKit:", err);
+    return false;
+  }
+}

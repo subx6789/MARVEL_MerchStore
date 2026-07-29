@@ -1,8 +1,7 @@
 // ─────────────────────────────────────────────────────────
 // Merchandising Taxonomy Types & Dictionaries
-// Flexible two-level taxonomy for:
-// 1. Power Origins (Mutant, Cosmic, Science, Skill, Tech, Mystic)
-// 2. Marvel Families & Factions (Avengers, Guardians, X-Men, F4, etc.)
+// Flexible taxonomy for:
+// 1. Marvel Families & Factions (Avengers, Guardians, X-Men, F4, etc.)
 // ─────────────────────────────────────────────────────────
 
 export interface MerchCategory {
@@ -60,23 +59,6 @@ export interface MarvelFamily {
   bgPattern: string;
 }
 
-export interface PowerOrigin {
-  id: string;
-  slug: string;
-  name: string;
-  description: string;
-  accent: string;
-}
-
-// ── Standard Power Origins (Hero Power Classifications) ──
-export const POWER_ORIGINS: PowerOrigin[] = [
-  { id: "org_mutant", slug: "mutant", name: "Mutant", description: "X-Gene & Evolutionary Powers", accent: "#F59E0B" },
-  { id: "org_cosmic", slug: "cosmic", name: "Cosmic", description: "Space & Celestial Energy", accent: "#00f0ff" },
-  { id: "org_science", slug: "science", name: "Science", description: "Gamma & Super Soldier Tech", accent: "#10B981" },
-  { id: "org_skill", slug: "skill", name: "Skill", description: "Master Tactical & Combat", accent: "#EF4444" },
-  { id: "org_tech", slug: "tech", name: "Tech", description: "Stark Armor & Vibranium", accent: "#F0B429" },
-  { id: "org_mystic", slug: "mystic", name: "Mystic", description: "Sorcery & Ancient Magic", accent: "#A855F7" },
-];
 
 // ── Standard Marvel Families (Teams, Factions & Collections) ──
 export const MARVEL_FAMILIES: MarvelFamily[] = [
@@ -153,3 +135,11 @@ export const MARVEL_FAMILIES: MarvelFamily[] = [
     bgPattern: "from-cyan-600/30 via-transparent to-transparent",
   },
 ];
+
+// ── Category Size Options Map ──
+export const CATEGORY_SIZES: Record<string, string[]> = {
+  topwear: ["XS", "S", "M", "L", "XL", "2XL", "3XL"],
+  bottomwear: ["28", "30", "32", "34", "36", "38", "40"],
+  footwear: ["UK 6", "UK 7", "UK 8", "UK 9", "UK 10", "UK 11", "UK 12"],
+  accessories: [], // Accessories are fixed one-size items
+};

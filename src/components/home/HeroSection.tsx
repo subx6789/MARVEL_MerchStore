@@ -17,14 +17,16 @@ import { useInventoryStore } from "@/stores/inventoryStore";
 import { formatPrice } from "@/lib/utils";
 import { soundFx } from "@/lib/sound";
 
-const DROP_DATE = new Date(Date.now() + 2 * 24 * 60 * 60 * 1000);
-
 export default function HeroSection() {
   const [mounted, setMounted] = useState(false);
-  const { products } = useProductStore();
+  const { products, drops } = useProductStore();
   const { getStock } = useInventoryStore();
 
   const featuredProduct = products[0];
+
+  // Find next upcoming/live drop dynamically from store
+  const activeDrop = drops.find((d) => d.status === "scheduled" || d.status === "live");
+  const dropTargetDate = activeDrop?.startsAt ? new Date(activeDrop.startsAt) : null;
 
   useEffect(() => {
     setMounted(true);
@@ -248,19 +250,19 @@ export default function HeroSection() {
         </div>
       </div>
 
-      {/* Live Countdown Strip Footer */}
-      {mounted && (
+      {/* Live Countdown Strip Footer (Only rendered when a Drop is scheduled in Admin) */}
+      {mounted && activeDrop && dropTargetDate && (
         <div className="mt-12 border-t border-[#1e1e2a] bg-[#0f0f15]/80 backdrop-blur-md">
           <div className="max-w-screen-2xl mx-auto px-4 md:px-8 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <span className="w-2.5 h-2.5 bg-amber-400 rounded-full animate-pulse" />
               <div>
                 <p className="text-xs font-bold text-amber-400 uppercase tracking-widest">NEXT GLOBAL DROP COUNTDOWN</p>
-                <p className="text-sm font-semibold text-gray-300">Avengers End Game Special Re-issue Collection</p>
+                <p className="text-sm font-semibold text-gray-300">{activeDrop.name}</p>
               </div>
             </div>
 
-            <DropCountdown targetDate={DROP_DATE} showLabels />
+            <DropCountdown targetDate={dropTargetDate} showLabels />
 
             <Link
               href="/drops"

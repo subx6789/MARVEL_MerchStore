@@ -6,11 +6,20 @@
 // ─────────────────────────────────────────────────────────
 import { useState } from "react";
 import { useDropzone } from "react-dropzone";
-import { Plus, Zap, Calendar, Clock, Trash2, Package, Upload, Check } from "lucide-react";
+import {
+  Plus,
+  Zap,
+  Calendar,
+  Clock,
+  Trash2,
+  Package,
+  Upload,
+  Check,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useProductStore } from "@/stores/productStore";
 import { formatPrice } from "@/lib/utils";
-import { uploadToImageKit } from "@/lib/imagekit";
+import { uploadToImageKit, deleteFromImageKit } from "@/lib/imagekit";
 import { broadcastRealtimeEvent } from "@/lib/supabase/realtime";
 
 export default function AdminDropsPage() {
@@ -23,8 +32,12 @@ export default function AdminDropsPage() {
   const [comparePrice, setComparePrice] = useState("");
   const [totalStock, setTotalStock] = useState("");
   const [status, setStatus] = useState<"live" | "scheduled" | "ended">("live");
-  const [startsAt, setStartsAt] = useState(new Date().toISOString().slice(0, 16));
-  const [endsAt, setEndsAt] = useState(new Date(Date.now() + 24 * 3600000).toISOString().slice(0, 16));
+  const [startsAt, setStartsAt] = useState(
+    new Date().toISOString().slice(0, 16),
+  );
+  const [endsAt, setEndsAt] = useState(
+    new Date(Date.now() + 24 * 3600000).toISOString().slice(0, 16),
+  );
   const [imageUrl, setImageUrl] = useState("");
   const [isUploading, setIsUploading] = useState(false);
 
@@ -39,7 +52,9 @@ export default function AdminDropsPage() {
         setImageUrl(res.url);
         toast.success("Drop image uploaded to ImageKit!", { id: "drop-ik" });
       } catch (err: any) {
-        toast.error("Upload failed: " + (err?.message || "Error"), { id: "drop-ik" });
+        toast.error("Upload failed: " + (err?.message || "Error"), {
+          id: "drop-ik",
+        });
       } finally {
         setIsUploading(false);
       }
@@ -60,7 +75,10 @@ export default function AdminDropsPage() {
       return;
     }
 
-    const generatedSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+    const generatedSlug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
 
     const dropId = `drp_${generatedSlug}_${Date.now()}`;
     const newDrop = {
@@ -72,8 +90,12 @@ export default function AdminDropsPage() {
       totalStock: parseInt(totalStock),
       soldCount: 0,
       status,
-      startsAt: startsAt ? new Date(startsAt).toISOString() : new Date().toISOString(),
-      endsAt: endsAt ? new Date(endsAt).toISOString() : new Date(Date.now() + 24 * 3600000).toISOString(),
+      startsAt: startsAt
+        ? new Date(startsAt).toISOString()
+        : new Date().toISOString(),
+      endsAt: endsAt
+        ? new Date(endsAt).toISOString()
+        : new Date(Date.now() + 24 * 3600000).toISOString(),
       slug: generatedSlug,
       imageUrl: imageUrl || undefined,
     };
@@ -99,7 +121,9 @@ export default function AdminDropsPage() {
           <h1 className="font-display text-3xl text-white tracking-wide uppercase font-bold">
             LIMITED DROPS ORCHESTRATION
           </h1>
-          <p className="text-xs text-gray-400">Schedule and launch real-time limited drops</p>
+          <p className="text-xs text-gray-400">
+            Schedule and launch real-time limited drops
+          </p>
         </div>
         <button
           onClick={() => setIsAddOpen(true)}
@@ -125,9 +149,14 @@ export default function AdminDropsPage() {
                 ✕
               </button>
             </div>
-            <form onSubmit={handleAddSubmit} className="space-y-4 text-xs font-sans">
+            <form
+              onSubmit={handleAddSubmit}
+              className="space-y-4 text-xs font-sans"
+            >
               <div>
-                <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">DROP TITLE</label>
+                <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">
+                  DROP TITLE
+                </label>
                 <input
                   type="text"
                   value={name}
@@ -139,7 +168,9 @@ export default function AdminDropsPage() {
               </div>
 
               <div>
-                <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">DESCRIPTION</label>
+                <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">
+                  DESCRIPTION
+                </label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -151,7 +182,9 @@ export default function AdminDropsPage() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">DROP PRICE (₹)</label>
+                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">
+                    DROP PRICE (₹)
+                  </label>
                   <input
                     type="number"
                     value={price}
@@ -162,7 +195,9 @@ export default function AdminDropsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">ORIGINAL PRICE (₹)</label>
+                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">
+                    ORIGINAL PRICE (₹)
+                  </label>
                   <input
                     type="number"
                     value={comparePrice}
@@ -172,7 +207,9 @@ export default function AdminDropsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">STOCK ALLOCATION</label>
+                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">
+                    STOCK ALLOCATION
+                  </label>
                   <input
                     type="number"
                     value={totalStock}
@@ -183,7 +220,9 @@ export default function AdminDropsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">STATUS</label>
+                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1">
+                    STATUS
+                  </label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value as any)}
@@ -199,8 +238,9 @@ export default function AdminDropsPage() {
               {/* Date & Time Range Inputs */}
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
-                    <Calendar size={12} className="text-red-500" /> START DATE & TIME
+                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1 items-center gap-1">
+                    <Calendar size={12} className="text-red-500" /> START DATE &
+                    TIME
                   </label>
                   <input
                     type="datetime-local"
@@ -211,8 +251,9 @@ export default function AdminDropsPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1 flex items-center gap-1">
-                    <Clock size={12} className="text-[#f0b429]" /> END DATE & TIME
+                  <label className="block text-gray-300 font-bold uppercase tracking-wider mb-1 items-center gap-1">
+                    <Clock size={12} className="text-[#f0b429]" /> END DATE &
+                    TIME
                   </label>
                   <input
                     type="datetime-local"
@@ -235,25 +276,36 @@ export default function AdminDropsPage() {
                     isDragActive
                       ? "border-red-500 bg-red-500/10"
                       : imageUrl
-                      ? "border-emerald-500/50 bg-[#08080c]"
-                      : "border-[#1e1e2a] hover:border-gray-500 bg-[#08080c]"
+                        ? "border-emerald-500/50 bg-[#08080c]"
+                        : "border-[#1e1e2a] hover:border-gray-500 bg-[#08080c]"
                   }`}
                 >
                   <input {...getInputProps()} />
                   {isUploading ? (
                     <div className="space-y-1 py-1 animate-pulse">
-                      <Upload size={20} className="mx-auto text-yellow-400 animate-spin" />
-                      <p className="font-bold text-yellow-400 text-xs">Uploading to ImageKit CDN...</p>
+                      <Upload
+                        size={20}
+                        className="mx-auto text-yellow-400 animate-spin"
+                      />
+                      <p className="font-bold text-yellow-400 text-xs">
+                        Uploading to ImageKit CDN...
+                      </p>
                     </div>
                   ) : imageUrl ? (
                     <div className="flex items-center justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <img src={imageUrl} alt="Drop Banner Preview" className="w-12 h-12 object-cover rounded-xs border border-[#1e1e2a]" />
+                        <img
+                          src={imageUrl}
+                          alt="Drop Banner Preview"
+                          className="w-12 h-12 object-cover rounded-xs border border-[#1e1e2a]"
+                        />
                         <div className="text-left">
                           <p className="text-emerald-400 font-bold text-xs flex items-center gap-1">
                             <Check size={14} /> Imagekit Image Uploaded
                           </p>
-                          <p className="text-gray-500 text-[10px]">Drag new file to replace</p>
+                          <p className="text-gray-500 text-[10px]">
+                            Drag new file to replace
+                          </p>
                         </div>
                       </div>
                       <button
@@ -270,8 +322,12 @@ export default function AdminDropsPage() {
                   ) : (
                     <div className="space-y-1 py-1">
                       <Upload size={20} className="mx-auto text-gray-400" />
-                      <p className="font-bold text-gray-300 text-xs">Drag & drop drop banner image here, or click to browse</p>
-                      <p className="text-gray-500 text-[10px]">ImageKit CDN integration enabled</p>
+                      <p className="font-bold text-gray-300 text-xs">
+                        Drag & drop drop banner image here, or click to browse
+                      </p>
+                      <p className="text-gray-500 text-[10px]">
+                        ImageKit CDN integration enabled
+                      </p>
                     </div>
                   )}
                 </div>
@@ -285,7 +341,10 @@ export default function AdminDropsPage() {
                 >
                   Cancel
                 </button>
-                <button type="submit" className="btn-gold text-xs px-6 py-2 font-black">
+                <button
+                  type="submit"
+                  className="btn-gold text-xs px-6 py-2 font-black"
+                >
                   Launch Drop
                 </button>
               </div>
@@ -298,24 +357,38 @@ export default function AdminDropsPage() {
       {drops.length === 0 ? (
         <div className="p-12 text-center bg-[#14141c] border border-[#1e1e2a] rounded-xs space-y-4">
           <Zap size={44} className="text-[#f0b429] mx-auto" />
-          <h2 className="font-display text-2xl text-white uppercase tracking-wider">NO DROPS SCHEDULED</h2>
+          <h2 className="font-display text-2xl text-white uppercase tracking-wider">
+            NO DROPS SCHEDULED
+          </h2>
           <p className="text-xs text-gray-400 max-w-sm mx-auto">
-            Click "Schedule New Drop" above to launch limited drops live on the storefront!
+            Click "Schedule New Drop" above to launch limited drops live on the
+            storefront!
           </p>
         </div>
       ) : (
         <div className="grid md:grid-cols-2 gap-6">
           {drops.map((drop) => {
-            const discountPercent = drop.comparePrice && drop.comparePrice > drop.price
-              ? Math.round(((drop.comparePrice - drop.price) / drop.comparePrice) * 100)
-              : 0;
+            const discountPercent =
+              drop.comparePrice && drop.comparePrice > drop.price
+                ? Math.round(
+                    ((drop.comparePrice - drop.price) / drop.comparePrice) *
+                      100,
+                  )
+                : 0;
 
             return (
-              <div key={drop.id} className="bg-[#14141c] border border-[#1e1e2a] p-6 rounded-xs space-y-4 shadow-xl relative overflow-hidden">
+              <div
+                key={drop.id}
+                className="bg-[#14141c] border border-[#1e1e2a] p-6 rounded-xs space-y-4 shadow-xl relative overflow-hidden"
+              >
                 {drop.imageUrl && (
                   <div className="h-32 -mx-6 -mt-6 mb-2 overflow-hidden relative">
-                    <img src={drop.imageUrl} alt={drop.name} className="w-full h-full object-cover" />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#14141c] via-[#14141c]/40 to-transparent" />
+                    <img
+                      src={drop.imageUrl}
+                      alt={drop.name}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-linear-to-t from-[#14141c] via-[#14141c]/40 to-transparent" />
                   </div>
                 )}
 
@@ -326,8 +399,8 @@ export default function AdminDropsPage() {
                         drop.status === "live"
                           ? "bg-red-500 text-white"
                           : drop.status === "scheduled"
-                          ? "bg-[#f0b429] text-black"
-                          : "bg-gray-800 text-gray-400"
+                            ? "bg-[#f0b429] text-black"
+                            : "bg-gray-800 text-gray-400"
                       }`}
                     >
                       {drop.status}
@@ -341,7 +414,9 @@ export default function AdminDropsPage() {
 
                   <div className="flex items-center gap-3">
                     <div className="text-right">
-                      <span className="font-display text-2xl text-red-500 font-bold">{formatPrice(drop.price)}</span>
+                      <span className="font-display text-2xl text-red-500 font-bold">
+                        {formatPrice(drop.price)}
+                      </span>
                       {drop.comparePrice && (
                         <span className="font-sans text-xs text-gray-500 line-through block -mt-1">
                           {formatPrice(drop.comparePrice)}
@@ -351,7 +426,18 @@ export default function AdminDropsPage() {
                     <button
                       onClick={() => {
                         if (confirm(`Delete drop "${drop.name}"?`)) {
+                          if (drop.imageUrl) {
+                            deleteFromImageKit(drop.imageUrl);
+                          }
                           deleteDrop(drop.id);
+                          fetch(`/api/products?id=${drop.id}&type=drop`, {
+                            method: "DELETE",
+                          }).catch((err) =>
+                            console.error(
+                              "Failed to delete drop from Supabase DB:",
+                              err,
+                            ),
+                          );
                           toast.success("Drop deleted");
                         }
                       }}
@@ -362,15 +448,19 @@ export default function AdminDropsPage() {
                   </div>
                 </div>
 
-                <h3 className="font-display text-2xl text-white tracking-wide font-extrabold">{drop.name}</h3>
+                <h3 className="font-display text-2xl text-white tracking-wide font-extrabold">
+                  {drop.name}
+                </h3>
 
                 {/* Date & Time Range Info */}
                 <div className="flex flex-wrap items-center gap-4 text-[11px] font-mono text-gray-400 bg-[#08080c] p-2.5 border border-[#1e1e2a] rounded-xs">
                   <span className="flex items-center gap-1.5">
-                    <Calendar size={12} className="text-red-500" /> Start: {new Date(drop.startsAt).toLocaleString()}
+                    <Calendar size={12} className="text-red-500" /> Start:{" "}
+                    {new Date(drop.startsAt).toLocaleString()}
                   </span>
                   <span className="flex items-center gap-1.5">
-                    <Clock size={12} className="text-[#f0b429]" /> End: {new Date(drop.endsAt).toLocaleString()}
+                    <Clock size={12} className="text-[#f0b429]" /> End:{" "}
+                    {new Date(drop.endsAt).toLocaleString()}
                   </span>
                 </div>
 
@@ -384,7 +474,9 @@ export default function AdminDropsPage() {
                   <div className="h-1.5 bg-[#1e1e2a] rounded-full overflow-hidden">
                     <div
                       className="h-full bg-red-500"
-                      style={{ width: `${Math.round((drop.soldCount / drop.totalStock) * 100)}%` }}
+                      style={{
+                        width: `${Math.round((drop.soldCount / drop.totalStock) * 100)}%`,
+                      }}
                     />
                   </div>
                 </div>

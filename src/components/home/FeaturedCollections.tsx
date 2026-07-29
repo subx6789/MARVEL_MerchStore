@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowRight, Shield, Sparkles, Flame, Atom, Cpu, Wand2, Shirt, Footprints, Watch, Scissors } from "lucide-react";
 import { staggerContainerVariants, staggerItemVariants, fadeUpVariants } from "@/lib/motion/variants";
 import { useProductStore } from "@/stores/productStore";
-import { MARVEL_FAMILIES, POWER_ORIGINS, MERCH_CATEGORIES } from "@/types/taxonomy";
+import { MARVEL_FAMILIES, MERCH_CATEGORIES } from "@/types/taxonomy";
 import { soundFx } from "@/lib/sound";
 
 const CATEGORY_ICONS: Record<string, any> = {
@@ -13,15 +13,6 @@ const CATEGORY_ICONS: Record<string, any> = {
   bottomwear: Scissors,
   footwear: Footprints,
   accessories: Watch,
-};
-
-const ORIGIN_ICONS: Record<string, any> = {
-  mutant: Flame,
-  cosmic: Sparkles,
-  science: Atom,
-  skill: Shield,
-  tech: Cpu,
-  mystic: Wand2,
 };
 
 export default function FeaturedCollections() {
@@ -84,58 +75,6 @@ export default function FeaturedCollections() {
                     <span>Explore {cat.name}</span>
                     <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
                   </div>
-                </Link>
-              </motion.div>
-            );
-          })}
-        </div>
-      </motion.div>
-      {/* ── 1. POWER ORIGINS (Hero Power Type Classifications) ── */}
-      <motion.div
-        variants={staggerContainerVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: "-80px" }}
-      >
-        <motion.div variants={fadeUpVariants} className="mb-8">
-          <span className="text-xs font-bold text-[#00f0ff] uppercase tracking-[0.2em] block mb-1">
-            HERO CLASSIFICATIONS
-          </span>
-          <h2 className="font-display text-4xl md:text-5xl text-white tracking-wide uppercase font-extrabold">
-            POWER ORIGINS
-          </h2>
-          <p className="text-gray-400 text-sm max-w-xl mt-1">
-            Browse official merchandise by hero power origin — Mutant, Cosmic, Science, Skill, Tech & Mystic.
-          </p>
-        </motion.div>
-
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-          {POWER_ORIGINS.map((pOrigin) => {
-            const IconComponent = ORIGIN_ICONS[pOrigin.slug] || Sparkles;
-            const count = products.filter(
-              (p) =>
-                p.origins?.includes(pOrigin.slug) ||
-                p.category?.toLowerCase() === pOrigin.slug ||
-                p.name?.toLowerCase().includes(pOrigin.slug)
-            ).length;
-
-            return (
-              <motion.div key={pOrigin.slug} variants={staggerItemVariants}>
-                <Link
-                  href={`/shop?origin=${pOrigin.slug}`}
-                  onClick={() => soundFx.playClick()}
-                  className="block p-5 border border-[#1e1e2a] rounded-xs bg-[#14141c] hover:border-[#00f0ff] transition-all duration-300 group shadow-xl hover:scale-[1.03]"
-                >
-                  <div className="flex items-center justify-between mb-3">
-                    <IconComponent size={24} className="text-[#00f0ff] group-hover:rotate-12 transition-transform" />
-                    <span className="text-[10px] font-mono font-bold text-gray-400">{count} Gear</span>
-                  </div>
-                  <h3 className="font-display text-xl font-extrabold uppercase tracking-wide text-white group-hover:text-[#00f0ff] transition-colors">
-                    {pOrigin.name}
-                  </h3>
-                  <p className="text-[10px] text-gray-400 mt-1 leading-snug font-normal line-clamp-1">
-                    {pOrigin.description}
-                  </p>
                 </Link>
               </motion.div>
             );

@@ -33,6 +33,7 @@ const navLinks = [
   { label: "Shop", href: "/shop" },
   { label: "Drops", href: "/drops" },
   { label: "Events", href: "/events" },
+  { label: "My Tickets", href: "/tickets", badge: "Passes" },
   { label: "QR Unlock", href: "/unlock", badge: "VIP" },
 ];
 
@@ -67,9 +68,15 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Close mobile menu on route change
+  // Close mobile menu on route change & auto open auth modal if login=true
   useEffect(() => {
     setMobileOpen(false);
+    if (typeof window !== "undefined") {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get("login") === "true") {
+        openAuthModal("login");
+      }
+    }
   }, [pathname]);
 
   const handleAccountClick = (e: React.MouseEvent) => {

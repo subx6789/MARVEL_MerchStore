@@ -8,6 +8,7 @@
 // Strict dismissal rule: Outside click does NOT close modal.
 // ─────────────────────────────────────────────────────────
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Eye, EyeOff, Loader2, ShieldCheck, KeyRound, CheckCircle2, MailCheck } from "lucide-react";
 import { toast } from "sonner";
@@ -16,8 +17,10 @@ import { useAuthStore } from "@/stores/authStore";
 import { soundFx } from "@/lib/sound";
 
 export default function AuthModal() {
+  const router = useRouter();
   const { isOpen, view, closeModal, setView } = useAuthModalStore();
   const {
+    user,
     signInWithEmail,
     sendRegistrationOTP,
     verifyRegistrationOTP,
@@ -55,8 +58,14 @@ export default function AuthModal() {
     const res = await signInWithEmail(email, password);
     if (res.success) {
       soundFx.playUnlock();
-      toast.success("Welcome back to MARVEL!");
+      const currentUser = useAuthStore.getState().user;
       closeModal();
+      if (currentUser?.role === "admin" || email.toLowerCase() === "admin@marvel.com") {
+        toast.success("Welcome, Admin! Accessing HQ Console...");
+        router.push("/admin");
+      } else {
+        toast.success("Welcome back to MARVEL!");
+      }
     } else {
       toast.error("Login Failed", { description: res.error });
     }

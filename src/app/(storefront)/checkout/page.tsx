@@ -26,6 +26,7 @@ import {
 import { useCartStore } from "@/stores/cartStore";
 import { useOrderStore, type Order } from "@/stores/orderStore";
 import { useInventoryStore } from "@/stores/inventoryStore";
+import { useAuthStore } from "@/stores/authStore";
 import { formatPrice, generateOrderNumber } from "@/lib/utils";
 import {
   addressSchema,
@@ -35,6 +36,7 @@ import { soundFx } from "@/lib/sound";
 
 export default function CheckoutPage() {
   const router = useRouter();
+  const { user, logout } = useAuthStore();
   const { items, subtotal, clearCart } = useCartStore();
   const { addOrder } = useOrderStore();
   const { decrementStock } = useInventoryStore();

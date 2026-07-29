@@ -13,12 +13,12 @@ export async function proxy(request: NextRequest) {
     request.cookies.has("marvel_auth_session") ||
     request.cookies.has("better-auth.session");
 
-  // Protect /admin routes (except /admin/login)
-  if (pathname.startsWith("/admin") && pathname !== "/admin/login") {
+  // Protect /admin routes
+  if (pathname.startsWith("/admin")) {
     if (!hasAuthCookie) {
       const loginUrl = request.nextUrl.clone();
-      loginUrl.pathname = "/admin/login";
-      loginUrl.searchParams.set("redirectTo", pathname);
+      loginUrl.pathname = "/";
+      loginUrl.searchParams.set("login", "true");
       return NextResponse.redirect(loginUrl);
     }
   }

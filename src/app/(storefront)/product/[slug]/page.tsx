@@ -1,18 +1,19 @@
 "use client";
 
 // ─────────────────────────────────────────────────────────
-// Product Detail Page — Dynamic Presentation from ProductStore
+// Product Detail Page — Dynamic Per-Category Sizing & Stock
 // ─────────────────────────────────────────────────────────
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ShoppingBag, Heart, Shield, Zap, Truck, RotateCcw, ArrowLeft, Package } from "lucide-react";
+import { ShoppingBag, Heart, Shield, Zap, Truck, RotateCcw, ArrowLeft, Package, Check } from "lucide-react";
 import { toast } from "sonner";
 import MarvelBadge from "@/components/shared/MarvelBadge";
 import { useCartStore } from "@/stores/cartStore";
 import { useWishlistStore } from "@/stores/wishlistStore";
 import { useProductStore } from "@/stores/productStore";
 import { useInventoryStore } from "@/stores/inventoryStore";
+import { CATEGORY_SIZES } from "@/types/taxonomy";
 import { formatPrice } from "@/lib/utils";
 import { soundFx } from "@/lib/sound";
 
@@ -33,39 +34,60 @@ export default function ProductDetailPage() {
     price: 1999,
     comparePrice: 2499,
     description: "Official Marvel merchandise piece. High quality collector item with authentic branding.",
-    stockCount: getStock(slug || "demo-product", 25),
-    totalStock: 100,
+    category: "topwear",
+    stockCount: 25,
+    sizeStocks: { XS: 5, S: 10, M: 15, L: 8, XL: 4 },
     badge: "new" as const,
     imageUrl: "https://images.unsplash.com/photo-1571945153237-4929e783af4a?w=800",
   };
 
-  const [selectedSize, setSelectedSize] = useState("L");
-  const [selectedColor, setSelectedColor] = useState("Stealth Black");
+  // Determine available category sizes
+  const categoryKey = (product.category || "topwear").toLowerCase();
+  const availableSizes = CATEGORY_SIZES[categoryKey] || [];
+  const isAccessories = categoryKey === "accessories" || availableSizes.length === 0;
+
+  const [selectedSize, setSelectedSize] = useState(availableSizes[0] || "One Size");
+
+  useEffect(() => {
+    if (availableSizes.length > 0) {
+      setSelectedSize(availableSizes[0]);
+    } else {
+      setSelectedSize("One Size");
+    }
+  }, [product.category]);
 
   const addItem = useCartStore((s) => s.addItem);
   const { toggle, isWishlisted } = useWishlistStore();
   const wishlisted = isWishlisted(product.id);
 
-  const currentStock = getStock(product.id, product.stockCount);
-  const totalStock = product.stockCount > 0 ? product.stockCount * 2 : 100;
-  const stockPercent = Math.round(((totalStock - currentStock) / totalStock) * 100);
+  // Selected size specific stock
+  const sizeStockMap = product.sizeStocks as Record<string, number> | undefined;
+  const sizeStock = sizeStockMap && sizeStockMap[selectedSize] !== undefined
+    ? sizeStockMap[selectedSize]
+    : product.stockCount;
+
+  const isOutOfStock = isAccessories ? product.stockCount <= 0 : sizeStock <= 0;
 
   function handleAddToCart() {
+    if (isOutOfStock) {
+      toast.error("Selected size is currently out of stock!");
+      return;
+    }
     soundFx.playClick();
     addItem({
-      id: `${product.id}-${selectedSize}-${selectedColor}`,
+      id: `${product.id}-${selectedSize}`,
       productId: product.id,
       productName: product.name,
-      variantLabel: `${selectedSize} / ${selectedColor}`,
+      variantLabel: isAccessories ? "One Size" : `Size: ${selectedSize}`,
       price: product.price,
       imageUrl: product.imageUrl,
-      maxStock: currentStock,
+      maxStock: sizeStock > 0 ? sizeStock : 10,
       quantity: 1,
       slug: product.slug,
     });
     soundFx.playUnlock();
     toast.success(`${product.name} added to cart`, {
-      description: `Size: ${selectedSize} | Edition: ${selectedColor}`,
+      description: isAccessories ? "One Size Fits All" : `Size: ${selectedSize}`,
     });
   }
 
@@ -94,7 +116,7 @@ export default function ProductDetailPage() {
         <div className="space-y-6">
           <div>
             <span className="text-xs font-bold text-[#f0b429] uppercase tracking-widest mb-2 block">
-              OFFICIAL COLLECTOR MERCHANDISE
+              OFFICIAL MARVEL {product.category?.toUpperCase() || "MERCHANDISE"}
             </span>
             <h1 className="font-display text-4xl md:text-5xl text-white tracking-wide leading-none mb-3 font-extrabold uppercase">
               {product.name}
@@ -115,42 +137,86 @@ export default function ProductDetailPage() {
           {/* Stock Meter */}
           <div className="bg-[#14141c] border border-[#1e1e2a] p-4 rounded-xs">
             <div className="flex justify-between text-xs font-sans mb-2">
-              <span className="text-gray-400">Stock Remaining</span>
-              <span className="text-red-500 font-bold">{currentStock} remaining</span>
+              <span className="text-gray-400">
+                {isAccessories ? "Total Stock" : `Stock for Size ${selectedSize}`}
+              </span>
+              <span className={`font-bold ${isOutOfStock ? "text-red-500" : "text-emerald-400"}`}>
+                {isOutOfStock ? "OUT OF STOCK" : `${sizeStock} units available`}
+              </span>
             </div>
             <div className="h-1.5 bg-[#1e1e2a] overflow-hidden rounded-full">
-              <div className="h-full bg-red-500 transition-all" style={{ width: `${Math.min(100, Math.max(10, stockPercent))}%` }} />
+              <div
+                className={`h-full transition-all ${isOutOfStock ? "bg-red-500" : "bg-emerald-500"}`}
+                style={{ width: `${Math.min(100, Math.max(5, (sizeStock / 20) * 100))}%` }}
+              />
             </div>
           </div>
 
-          {/* Size Selector */}
-          <div>
-            <label className="block text-xs font-bold text-gray-300 uppercase tracking-widest mb-3">SELECT SIZE</label>
-            <div className="grid grid-cols-5 gap-2">
-              {["S", "M", "L", "XL", "XXL"].map((s) => (
-                <button
-                  key={s}
-                  onClick={() => {
-                    soundFx.playClick();
-                    setSelectedSize(s);
-                  }}
-                  className={`py-3 border font-display text-lg tracking-wider cursor-pointer ${
-                    selectedSize === s
-                      ? "border-red-500 bg-red-500 text-white shadow-[0_0_15px_rgba(226,54,54,0.5)]"
-                      : "border-[#1e1e2a] text-gray-400 hover:border-white hover:text-white"
-                  }`}
-                >
-                  {s}
-                </button>
-              ))}
+          {/* Category Specific Size Selector */}
+          {!isAccessories ? (
+            <div>
+              <div className="flex items-center justify-between mb-3">
+                <label className="text-xs font-bold text-gray-300 uppercase tracking-widest">
+                  SELECT {categoryKey === "footwear" ? "FOOTWEAR SIZE (UK)" : "CLOTHING SIZE"}
+                </label>
+                <span className="text-[10px] text-amber-400 font-bold uppercase">
+                  Category: {product.category}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-4 sm:grid-cols-7 gap-2">
+                {availableSizes.map((sz) => {
+                  const qty = sizeStockMap ? sizeStockMap[sz] ?? 0 : product.stockCount;
+                  const available = qty > 0;
+                  const isSelected = selectedSize === sz;
+
+                  return (
+                    <button
+                      key={sz}
+                      onClick={() => {
+                        soundFx.playClick();
+                        setSelectedSize(sz);
+                      }}
+                      className={`py-2.5 border font-display text-sm tracking-wider transition-all relative cursor-pointer ${
+                        isSelected
+                          ? "border-amber-400 bg-amber-400 text-black font-extrabold shadow-md"
+                          : available
+                          ? "border-[#1e1e2a] bg-[#14141c] text-white hover:border-amber-400/60"
+                          : "border-red-500/20 bg-red-500/5 text-red-400/60 cursor-not-allowed opacity-50"
+                      }`}
+                    >
+                      {sz}
+                      {product.sizeStocks && (
+                        <span className="block text-[8px] font-mono font-normal">
+                          {qty > 0 ? `${qty} left` : "Sold Out"}
+                        </span>
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="bg-[#14141c] border border-purple-500/30 p-3 rounded-xs flex items-center justify-between text-xs">
+              <span className="text-purple-400 font-bold uppercase flex items-center gap-2">
+                <Package size={14} /> One Size (Accessories)
+              </span>
+              <span className="text-gray-400 text-[10px]">Universal fit item</span>
+            </div>
+          )}
 
           {/* Add to Cart & Wishlist */}
           <div className="flex gap-4 pt-4">
-            <button onClick={handleAddToCart} className="btn-marvel flex-1 justify-center gap-3 py-4 text-sm">
-              <ShoppingBag size={18} /> Add to Bag
+            <button
+              onClick={handleAddToCart}
+              disabled={isOutOfStock}
+              className={`btn-marvel flex-1 justify-center gap-3 py-4 text-sm font-black ${
+                isOutOfStock ? "bg-gray-700 border-gray-700 text-gray-400 cursor-not-allowed" : ""
+              }`}
+            >
+              <ShoppingBag size={18} /> {isOutOfStock ? "Out of Stock" : "Add to Bag"}
             </button>
+
             <button
               onClick={() => {
                 soundFx.playClick();
@@ -162,33 +228,12 @@ export default function ProductDetailPage() {
                   slug: product.slug,
                 });
               }}
-              className={`p-4 border cursor-pointer ${
-                wishlisted
-                  ? "bg-red-500 border-red-500 text-white shadow-[0_0_15px_rgba(226,54,54,0.5)]"
-                  : "border-[#1e1e2a] text-gray-400 hover:border-white hover:text-white"
+              className={`p-4 border transition-colors cursor-pointer ${
+                wishlisted ? "bg-red-500/20 border-red-500 text-red-500" : "border-[#1e1e2a] text-gray-400 hover:text-white"
               }`}
             >
               <Heart size={20} fill={wishlisted ? "currentColor" : "none"} />
             </button>
-          </div>
-
-          {/* Guarantees */}
-          <div className="grid grid-cols-3 gap-4 pt-6 border-t border-[#1e1e2a] text-center">
-            <div className="space-y-1">
-              <Shield size={20} className="mx-auto text-[#f0b429]" />
-              <p className="font-display text-sm font-bold">100% Authentic</p>
-              <p className="text-[10px] text-gray-400">Official Marvel License</p>
-            </div>
-            <div className="space-y-1">
-              <Truck size={20} className="mx-auto text-[#f0b429]" />
-              <p className="font-display text-sm font-bold">Fast Dispatch</p>
-              <p className="text-[10px] text-gray-400">Fast Express Delivery</p>
-            </div>
-            <div className="space-y-1">
-              <RotateCcw size={20} className="mx-auto text-[#f0b429]" />
-              <p className="font-display text-sm font-bold">Collector Quality</p>
-              <p className="text-[10px] text-gray-400">Mint Condition</p>
-            </div>
           </div>
         </div>
       </div>
