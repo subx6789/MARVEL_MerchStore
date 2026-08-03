@@ -19,8 +19,8 @@ export default function RealtimeProvider({ children }: { children: React.ReactNo
   useEffect(() => {
     // ── Global Touch & Click SFX Listener ──
     const handleGlobalClick = (e: MouseEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (!target) return;
+      const target = e.target;
+      if (!(target instanceof Element)) return;
       const clickable = target.closest("button, a, input[type='button'], input[type='submit'], [role='button'], .cursor-pointer");
       if (clickable) {
         soundFx.playClick();
@@ -28,8 +28,8 @@ export default function RealtimeProvider({ children }: { children: React.ReactNo
     };
 
     const handleGlobalMouseEnter = (e: MouseEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (!target) return;
+      const target = e.target;
+      if (!(target instanceof Element)) return;
       const hoverable = target.closest("button, a, [role='button'], .cursor-pointer");
       if (hoverable) {
         soundFx.playHover();
