@@ -43,23 +43,42 @@ export default function RealtimeProvider({ children }: { children: React.ReactNo
       .then((res) => res.json())
       .then((data) => {
         if (data?.products && Array.isArray(data.products)) {
-          data.products.forEach((dbProd: any) => {
-            const formatted = {
-              id: dbProd.id,
-              name: dbProd.name,
-              slug: dbProd.slug,
-              price: parseFloat(dbProd.price || "0"),
-              category: dbProd.metadata?.category || "topwear",
-              origins: dbProd.metadata?.origins || [],
-              families: dbProd.metadata?.families || [],
-              stockCount: dbProd.metadata?.stockCount || 50,
-              sku: dbProd.metadata?.sku || dbProd.slug,
-              imageUrl: dbProd.metadata?.imageUrl || "/images/placeholder-product.jpg",
-              status: dbProd.status || "active",
-            };
-            // Sync DB item to store
-            useProductStore.getState().addProduct(formatted);
-          });
+          const dbProducts = data.products.map((dbProd: any) => ({
+            id: dbProd.id,
+            name: dbProd.name,
+            slug: dbProd.slug,
+            price: parseFloat(dbProd.price || "0"),
+            category: dbProd.metadata?.category || "topwear",
+            origins: dbProd.metadata?.origins || [],
+            families: dbProd.metadata?.families || [],
+            stockCount: dbProd.metadata?.stockCount || 50,
+            sku: dbProd.metadata?.sku || dbProd.slug,
+            imageUrl: dbProd.metadata?.imageUrl || "/images/placeholder-product.jpg",
+            status: dbProd.status || "active",
+          }));
+          // Sync DB items to store, overriding stale local storage items
+          useProductStore.getState().setProducts(dbProducts);
+        }
+
+        // Sync Drops directly with DB (overriding stale local storage drops)
+        if (data && Array.isArray(data.drops)) {
+          const dbDrops = data.drops.map((dbDrop: any) => ({
+            id: dbDrop.id,
+            name: dbDrop.name,
+            description: dbDrop.description || "",
+            price: parseFloat(dbDrop.price || "0"),
+            comparePrice: dbDrop.comparePrice ? parseFloat(dbDrop.comparePrice) : undefined,
+            totalStock: dbDrop.totalStock || 100,
+            soldCount: dbDrop.soldCount || 0,
+            status: dbDrop.status || "live",
+            startsAt: dbDrop.startsAt || new Date().toISOString(),
+            endsAt: dbDrop.endsAt || new Date().toISOString(),
+            slug: dbDrop.slug,
+            imageUrl: dbDrop.imageUrl,
+          }));
+          useProductStore.getState().setDrops(dbDrops);
+        } else {
+          useProductStore.getState().setDrops([]);
         }
       })
       .catch((err) => console.error("Initial Supabase DB fetch error:", err));

@@ -49,14 +49,6 @@ export const useCartStore = create<CartStore>()(
       isOpen: false,
 
       addItem: (item) => {
-        const currentUser = useAuthStore.getState().user;
-        if (currentUser?.role === "admin" || currentUser?.email === "admin@marvel.com") {
-          toast.error("Admin accounts cannot place customer orders", {
-            description: "Please switch to a customer account or use the Admin Console.",
-          });
-          return;
-        }
-
         set((state) => {
           const existing = state.items.find((i) => i.id === item.id);
           if (existing) {

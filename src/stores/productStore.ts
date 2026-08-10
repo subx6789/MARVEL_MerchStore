@@ -81,11 +81,13 @@ interface ProductStore {
   coupons: CouponItem[];
 
   // Product Actions
+  setProducts: (products: ProductItem[]) => void;
   addProduct: (product: Omit<ProductItem, "id"> & { id?: string }) => void;
   updateProduct: (id: string, data: Partial<ProductItem>) => void;
   deleteProduct: (id: string) => void;
 
   // Drop Actions
+  setDrops: (drops: DropItem[]) => void;
   addDrop: (drop: Omit<DropItem, "id"> & { id?: string }) => void;
   updateDrop: (id: string, data: Partial<DropItem>) => void;
   deleteDrop: (id: string) => void;
@@ -109,6 +111,9 @@ export const useProductStore = create<ProductStore>()(
       drops: [],
       events: [],
       coupons: [],
+
+      setProducts: (products) => set({ products }),
+      setDrops: (drops) => set({ drops }),
 
       // Product Actions
       addProduct: (productData) =>

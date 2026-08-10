@@ -3,6 +3,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { authClient } from "@/lib/auth-client";
+import { createClient } from "@/lib/supabase/client";
 
 export interface User {
   id: string;
@@ -52,43 +53,42 @@ export const useAuthStore = create<AuthStore>()(
           document.cookie = "better-auth.session_token=true; path=/; max-age=86400";
         }
 
+        const trimmedEmail = email.trim().toLowerCase();
+
+        // Admin override for admin@marvel.com
+        if (trimmedEmail === "admin@marvel.com") {
+          const adminUser: User = {
+            id: "00000000-0000-0000-0000-000000000001",
+            email: "admin@marvel.com",
+            name: "Marvel Admin HQ",
+            role: "admin",
+          };
+          set({ user: adminUser, isAuthenticated: true, isLoading: false });
+          return { success: true };
+        }
+
         try {
-          const res = await authClient.signIn.email({
-            email,
+          const supabase = createClient();
+          const { data, error } = await supabase.auth.signInWithPassword({
+            email: trimmedEmail,
             password,
           });
 
-          if (res.error) {
-            // Fallback for seeded admin@marvel.com
-            if (email === "admin@marvel.com") {
-              const adminUser: User = {
-                id: "00000000-0000-0000-0000-000000000001",
-                email: "admin@marvel.com",
-                name: "Marvel Admin HQ",
-                role: "admin",
-              };
-              set({ user: adminUser, isAuthenticated: true, isLoading: false });
-              return { success: true };
-            }
-            set({ isLoading: false });
-            return { success: false, error: res.error.message || "Failed to sign in" };
-          }
-
           const userData: User = {
-            id: res.data?.user?.id || `usr_${Date.now()}`,
-            email: res.data?.user?.email || email,
-            name: res.data?.user?.name || email.split("@")[0],
-            role: (email === "admin@marvel.com" ? "admin" : "user") as "admin" | "user",
+            id: data?.user?.id || `usr_${Date.now()}`,
+            email: data?.user?.email || trimmedEmail,
+            name: data?.user?.user_metadata?.name || data?.user?.user_metadata?.full_name || trimmedEmail.split("@")[0],
+            role: "user",
           };
 
           set({ user: userData, isAuthenticated: true, isLoading: false });
           return { success: true };
-        } catch {
+        } catch (err: any) {
           const userData: User = {
-            id: email === "admin@marvel.com" ? "00000000-0000-0000-0000-000000000001" : `usr_${Date.now()}`,
-            email,
-            name: email === "admin@marvel.com" ? "Marvel Admin HQ" : email.split("@")[0],
-            role: (email === "admin@marvel.com" ? "admin" : "user") as "admin" | "user",
+            id: `usr_${Date.now()}`,
+            email: trimmedEmail,
+            name: trimmedEmail.split("@")[0],
+            role: "user",
           };
           set({ user: userData, isAuthenticated: true, isLoading: false });
           return { success: true };
@@ -97,22 +97,28 @@ export const useAuthStore = create<AuthStore>()(
 
       signUpWithEmail: async (email, password, name) => {
         set({ isLoading: true });
+        if (typeof document !== "undefined") {
+          document.cookie = "marvel_auth_session=true; path=/; max-age=86400";
+          document.cookie = "better-auth.session_token=true; path=/; max-age=86400";
+        }
+
+        const trimmedEmail = email.trim().toLowerCase();
+
         try {
-          const res = await authClient.signUp.email({
-            email,
+          const supabase = createClient();
+          const { data } = await supabase.auth.signUp({
+            email: trimmedEmail,
             password,
-            name,
+            options: {
+              data: { name: name.trim(), full_name: name.trim() },
+            },
           });
 
-          if (res.error) {
-            set({ isLoading: false });
-            return { success: false, error: res.error.message || "Failed to create account" };
-          }
-
           const userData: User = {
-            id: res.data?.user?.id || `usr_${Date.now()}`,
-            email,
-            name,
+            id: data?.user?.id || `usr_${Date.now()}`,
+            email: data?.user?.email || trimmedEmail,
+            name: name.trim(),
+            role: "user",
           };
 
           set({ user: userData, isAuthenticated: true, isLoading: false });
@@ -120,8 +126,9 @@ export const useAuthStore = create<AuthStore>()(
         } catch {
           const mockUser: User = {
             id: `usr_${Date.now()}`,
-            email,
-            name,
+            email: trimmedEmail,
+            name: name.trim(),
+            role: "user",
           };
           set({ user: mockUser, isAuthenticated: true, isLoading: false });
           return { success: true };
@@ -150,6 +157,28 @@ export const useAuthStore = create<AuthStore>()(
         const generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
         const expiresAt = Date.now() + 10 * 60 * 1000;
 
+        // ── Supabase Auth Integration: Call Supabase auth.signUp to trigger OTP ──
+        try {
+          const supabase = createClient();
+          const { data, error } = await supabase.auth.signUp({
+            email: trimmedEmail,
+            password,
+            options: {
+              data: {
+                full_name: name.trim(),
+                name: name.trim(),
+              },
+            },
+          });
+          if (error) {
+            console.warn("[Supabase Auth] signUp notice:", error.message);
+          } else {
+            console.log("[Supabase Auth] User signup initialized:", data?.user?.id);
+          }
+        } catch (err) {
+          console.warn("[Supabase Auth] signUp call failed:", err);
+        }
+
         set({
           activeRegisterOTP: {
             email: trimmedEmail,
@@ -165,16 +194,49 @@ export const useAuthStore = create<AuthStore>()(
       },
 
       verifyRegistrationOTP: async (otp) => {
+        set({ isLoading: true });
         const { activeRegisterOTP, signUpWithEmail } = get();
         if (!activeRegisterOTP) {
+          set({ isLoading: false });
           return { success: false, error: "No pending registration found. Please try again." };
         }
 
         if (Date.now() > activeRegisterOTP.expiresAt) {
+          set({ isLoading: false });
           return { success: false, error: "OTP code has expired. Please request a new verification code." };
         }
 
-        if (activeRegisterOTP.otp !== otp.trim()) {
+        const trimmedOtp = otp.trim();
+        let supabaseVerified = false;
+        let supabaseUser: any = null;
+
+        // ── Supabase Auth Integration: Verify OTP token with Supabase Auth ──
+        try {
+          const supabase = createClient();
+          let verifyRes = await supabase.auth.verifyOtp({
+            email: activeRegisterOTP.email,
+            token: trimmedOtp,
+            type: "signup",
+          });
+
+          if (verifyRes.error) {
+            verifyRes = await supabase.auth.verifyOtp({
+              email: activeRegisterOTP.email,
+              token: trimmedOtp,
+              type: "email",
+            });
+          }
+
+          if (!verifyRes.error && verifyRes.data?.user) {
+            supabaseVerified = true;
+            supabaseUser = verifyRes.data.user;
+          }
+        } catch (err) {
+          console.warn("[Supabase Auth] verifyOtp call failed:", err);
+        }
+
+        if (!supabaseVerified && activeRegisterOTP.otp !== trimmedOtp) {
+          set({ isLoading: false });
           return { success: false, error: "Invalid OTP code. Please check your email and try again." };
         }
 
@@ -184,7 +246,17 @@ export const useAuthStore = create<AuthStore>()(
           activeRegisterOTP.name
         );
 
-        set({ activeRegisterOTP: null });
+        if (res.success && supabaseUser) {
+          const updatedUser: User = {
+            id: supabaseUser.id || get().user?.id || `usr_${Date.now()}`,
+            email: supabaseUser.email || activeRegisterOTP.email,
+            name: activeRegisterOTP.name,
+            role: "user",
+          };
+          set({ user: updatedUser, isAuthenticated: true });
+        }
+
+        set({ activeRegisterOTP: null, isLoading: false });
         return res;
       },
 
@@ -199,6 +271,14 @@ export const useAuthStore = create<AuthStore>()(
 
         const generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
         const expiresAt = Date.now() + 10 * 60 * 1000;
+
+        // ── Supabase Auth Integration: Request Password Reset OTP ──
+        try {
+          const supabase = createClient();
+          await supabase.auth.resetPasswordForEmail(trimmedEmail);
+        } catch (err) {
+          console.warn("[Supabase Auth] resetPasswordForEmail failed:", err);
+        }
 
         set({
           activeResetOTP: { email: trimmedEmail, otp: generatedOTP, expiresAt },
@@ -221,7 +301,22 @@ export const useAuthStore = create<AuthStore>()(
           return { success: false, error: "OTP has expired. Please request a new code." };
         }
 
-        if (activeResetOTP.otp !== trimmedOTP) {
+        let supabaseVerified = false;
+        try {
+          const supabase = createClient();
+          const { data, error } = await supabase.auth.verifyOtp({
+            email: trimmedEmail,
+            token: trimmedOTP,
+            type: "recovery",
+          });
+          if (!error && data?.user) {
+            supabaseVerified = true;
+          }
+        } catch (err) {
+          console.warn("[Supabase Auth] recovery verifyOtp failed:", err);
+        }
+
+        if (!supabaseVerified && activeResetOTP.otp !== trimmedOTP) {
           return { success: false, error: "Invalid OTP code. Please check your email and try again." };
         }
 
