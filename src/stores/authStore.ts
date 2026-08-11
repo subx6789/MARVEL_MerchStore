@@ -352,6 +352,7 @@ export const useAuthStore = create<AuthStore>()(
         };
 
         try {
+          // 1. Client-side Supabase auth update
           const supabase = createClient();
           await supabase.auth.updateUser({
             data: {
@@ -362,8 +363,21 @@ export const useAuthStore = create<AuthStore>()(
               address: updatedUser.address,
             },
           });
+
+          // 2. Server API route update (uses Service Role Key & Drizzle to force-sync Supabase Auth & DB)
+          await fetch("/api/profile", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              userId: updatedUser.id,
+              email: updatedUser.email,
+              name: updatedUser.name,
+              avatarUrl: updatedUser.avatarUrl,
+              phone: updatedUser.phone,
+            }),
+          });
         } catch (err) {
-          console.warn("[Supabase Auth] Failed to sync user metadata:", err);
+          console.warn("[AuthStore] Profile sync notice:", err);
         }
 
         set({ user: updatedUser, isLoading: false });

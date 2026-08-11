@@ -2,7 +2,7 @@
 // ─────────────────────────────────────────────────────────
 // Admin Layout — Operations Console
 // ─────────────────────────────────────────────────────────
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
@@ -26,17 +26,45 @@ const NAV_ITEMS = [
   { label: "Settings", href: "/admin/settings", icon: Settings },
 ];
 
+
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const [collapsed, setCollapsed] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
-  const { logout } = useAuthStore();
+  const { user, isAuthenticated, isLoading, logout } = useAuthStore();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (mounted && !isLoading) {
+      if (!isAuthenticated || user?.role !== "admin") {
+        router.replace("/");
+      }
+    }
+  }, [mounted, isLoading, isAuthenticated, user, router]);
 
   const handleLogout = async () => {
     soundFx.playClick();
     await logout();
     router.push("/");
   };
+
+  if (!mounted || isLoading) {
+    return (
+      <div className="flex h-screen bg-marvel-black items-center justify-center">
+        <div className="font-display text-white text-sm tracking-widest animate-pulse">
+          VERIFYING ADMIN ACCESS...
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated || user?.role !== "admin") {
+    return null;
+  }
 
   return (
     <div className="flex h-screen bg-marvel-black overflow-hidden">
