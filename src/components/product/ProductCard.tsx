@@ -68,12 +68,14 @@ export default function ProductCard({
   async function handleAddToCart(e: React.MouseEvent) {
     e.preventDefault();
     e.stopPropagation();
-    if (isSoldOut || !variantId) return;
+    if (isSoldOut) return;
+
+    const effectiveVariantId = variantId || `${id}-std`;
 
     soundFx.playAddToCart();
     setAdding(true);
     addItem({
-      id: variantId,
+      id: effectiveVariantId,
       productId: id,
       productName: name,
       variantLabel,
