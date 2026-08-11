@@ -78,6 +78,7 @@ export const useAuthStore = create<AuthStore>()(
             id: data?.user?.id || `usr_${Date.now()}`,
             email: data?.user?.email || trimmedEmail,
             name: data?.user?.user_metadata?.name || data?.user?.user_metadata?.full_name || trimmedEmail.split("@")[0],
+            avatarUrl: data?.user?.user_metadata?.avatar_url || undefined,
             role: "user",
           };
 
@@ -349,6 +350,21 @@ export const useAuthStore = create<AuthStore>()(
           phone: data.phone !== undefined ? data.phone : user.phone,
           address: data.address !== undefined ? data.address : user.address,
         };
+
+        try {
+          const supabase = createClient();
+          await supabase.auth.updateUser({
+            data: {
+              name: updatedUser.name,
+              full_name: updatedUser.name,
+              avatar_url: updatedUser.avatarUrl,
+              phone: updatedUser.phone,
+              address: updatedUser.address,
+            },
+          });
+        } catch (err) {
+          console.warn("[Supabase Auth] Failed to sync user metadata:", err);
+        }
 
         set({ user: updatedUser, isLoading: false });
         return { success: true };
