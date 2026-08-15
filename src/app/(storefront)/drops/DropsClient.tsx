@@ -11,10 +11,12 @@ import DropCountdown from "@/components/drops/DropCountdown";
 import MarvelBadge from "@/components/shared/MarvelBadge";
 import { staggerContainerVariants, staggerItemVariants } from "@/lib/motion/variants";
 import { useProductStore, type DropItem } from "@/stores/productStore";
+import { useAuthStore } from "@/stores/authStore";
 import { formatPrice } from "@/lib/utils";
 
 export default function DropsClient() {
   const { drops } = useProductStore();
+  const { user } = useAuthStore();
 
   const live = drops.filter((d) => d.status === "live");
   const scheduled = drops.filter((d) => d.status === "scheduled");
@@ -26,12 +28,14 @@ export default function DropsClient() {
         <Zap size={48} className="text-[#f0b429] mx-auto mb-4 animate-bounce" />
         <h2 className="font-display text-3xl text-white tracking-widest uppercase mb-2">NO DROPS SCHEDULED</h2>
         <p className="font-sans text-sm text-gray-400 mb-6">
-          There are currently no active or scheduled drop releases. You can schedule limited drops dynamically via the Admin Dashboard!
+          There are currently no active or scheduled drop releases. Check back soon for exclusive MARVEL limited edition merchandise!
         </p>
-        <Link href="/admin/drops" className="btn-gold inline-flex items-center gap-2 px-6 py-3 text-xs font-black">
-          <PackagePlus size={16} />
-          Create New Drop in Admin
-        </Link>
+        {user?.role === "admin" && (
+          <Link href="/admin/drops" className="btn-gold inline-flex items-center gap-2 px-6 py-3 text-xs font-black">
+            <PackagePlus size={16} />
+            Create New Drop in Admin
+          </Link>
+        )}
       </div>
     );
   }

@@ -1,5 +1,5 @@
 // ─────────────────────────────────────────────────────────
-// Next.js Proxy — Route Protection
+// Next.js Proxy — Route Protection (Next.js 16)
 // Protects /admin routes using session cookies
 // ─────────────────────────────────────────────────────────
 import { type NextRequest, NextResponse } from "next/server";

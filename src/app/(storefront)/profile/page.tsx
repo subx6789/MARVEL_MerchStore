@@ -281,18 +281,20 @@ export default function ProfilePage() {
               {/* Avatar Selector */}
               <div>
                 <label className="block text-xs font-bold text-gray-300 uppercase tracking-widest mb-3">
-                  CHOOSE AVATAR PRESET OR CUSTOM URL
+                  CHOOSE AVATAR PRESET
                 </label>
-                <div className="flex flex-wrap items-center gap-3 mb-4">
+                <div className="flex flex-wrap items-center gap-3">
                   {AVATAR_PRESETS.map((preset) => (
                     <button
                       key={preset.name}
                       type="button"
-                      onClick={() => {
+                      onClick={async () => {
                         soundFx.playClick();
                         setAvatarUrl(preset.url);
+                        await updateProfile({ name, avatarUrl: preset.url, phone, address });
+                        toast.success(`${preset.name} avatar applied!`);
                       }}
-                      className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all ${
+                      className={`relative w-12 h-12 rounded-full overflow-hidden border-2 transition-all cursor-pointer ${
                         avatarUrl === preset.url
                           ? "border-red-500 scale-110 shadow-[0_0_12px_rgba(226,54,54,0.8)]"
                           : "border-gray-800 opacity-70 hover:opacity-100"
@@ -303,13 +305,6 @@ export default function ProfilePage() {
                     </button>
                   ))}
                 </div>
-                <input
-                  type="text"
-                  value={avatarUrl}
-                  onChange={(e) => setAvatarUrl(e.target.value)}
-                  placeholder="https://example.com/avatar.jpg"
-                  className="input-marvel text-xs py-2.5 bg-[#08080c]"
-                />
               </div>
 
               {/* Full Name */}
